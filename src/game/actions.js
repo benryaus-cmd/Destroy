@@ -1,0 +1,9 @@
+/** Deterministic world layout; effects retain their own random source. */
+export function seededRandom(seed=1){let a=Number(seed)>>>0;return ()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
+/** Segment/AABB slab test prevents fast projectiles crossing a facade unseen. */
+export function sweptBoxHit(from,to,b,padding=0){let lo=0,hi=1;const bounds={x:[b.x-b.w/2-padding,b.x+b.w/2+padding],y:[-padding,b.h+padding],z:[b.z-b.d/2-padding,b.z+b.d/2+padding]};for(const axis of ['x','y','z']){const delta=to[axis]-from[axis],min=bounds[axis][0],max=bounds[axis][1];if(Math.abs(delta)<1e-9){if(from[axis]<min||from[axis]>max)return false;continue;}let t0=(min-from[axis])/delta,t1=(max-from[axis])/delta;if(t0>t1)[t0,t1]=[t1,t0];lo=Math.max(lo,t0);hi=Math.min(hi,t1);if(lo>hi)return false;}return true;}
+export function launchVelocity(yaw=0,size=1){size=Number.isFinite(size)?Math.max(.6,Math.min(6,size)):1;const speed=28+size*5;return {x:Math.sin(yaw)*speed,y:8+size*2,z:Math.cos(yaw)*speed};}
+export function jumpHeight(elapsed,duration,height){if(duration<=0||elapsed<=0||elapsed>=duration)return 0;const t=elapsed/duration;return 4*height*t*(1-t);}
+export function segmentBoxContact(from,to,bounds,padding=0){let lo=0,hi=1;for(const axis of ['x','y','z']){const delta=to[axis]-from[axis],min=bounds.min[axis]-padding,max=bounds.max[axis]+padding;if(Math.abs(delta)<1e-9){if(from[axis]<min||from[axis]>max)return null;continue;}let a=(min-from[axis])/delta,b=(max-from[axis])/delta;if(a>b)[a,b]=[b,a];lo=Math.max(lo,a);hi=Math.min(hi,b);if(lo>hi)return null;}return lo;}
+export function canGroundAttack(mon,jump,climbing){return mon.position.y<=1&&!jump&&!climbing;}
+export function bulletHitsBody(point,position,size,radius){return Math.hypot(point.x-position.x,point.z-position.z)<radius+.3&&point.y>=position.y&&point.y<position.y+2.6*size;}

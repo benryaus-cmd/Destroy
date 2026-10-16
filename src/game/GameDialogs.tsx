@@ -5,9 +5,9 @@ const GameDialogs = () => (
         <h2>PAUSED</h2>
         <div className="bt">
           <button id="rs">Resume</button>
-          <button className="s" id="qt">Quit</button>
+          <button className="s" id="qt">Save & menu</button>
         </div>
-        <div className="bt pause-save-row"><button className="s" id="save-run">Save score</button></div>
+        <div className="bt pause-save-row"><button className="s" id="save-run">Save city</button></div>
         <div className="bt pause-options"><button className="s" id="pq">Graphics: High</button></div>
         <div className="gore-controls pause-gore-controls" aria-label="Gore settings">
           <button className="s gore-toggle" id="gore-pause-toggle" type="button" aria-pressed="true">Gore: On</button>
@@ -35,12 +35,19 @@ const GameDialogs = () => (
           <b>Chomp</b> Space or CHOMP — eat people to heal and grow<br />
           <b>Smash</b> E or SMASH — ground-pound for buildings, cars and crowds<br />
           <b>Camera</b> drag to orbit and tilt, wheel or zoom buttons to zoom<br />
+          <b>Grab / throw</b> Q or GRAB — aim with the camera and throw a car<br />
+          <b>Jump / slam</b> R — press again in the air to body-slam<br />
+          <b>Climb</b> Hold R beside a building, then jump from its roof<br />
+          <b>Charge / power</b> F / X — break through walls or unleash your mutation<br />
+          <b>Conquest</b> Your growth, mutations and city damage save automatically<br />
           <b>Combo</b> chain kills fast for a score multiplier<br />
           <b>Threat</b> the more you wreck, the harder the police and army hit back
         </div>
         <button id="hc2">Got it</button>
       </div>
     </div>
+    <div id="evolution" className="ov"><div className="pnl glass evolution-panel"><div className="panel-heading"><div><small>YOUR MONSTER, EVOLVED</small><h2>MUTATION LAB</h2></div><button className="s" id="close-evolution">Close</button></div><p id="evolution-balance" /><div id="mutation-list" /><p className="fine">Earn DNA by feeding and wrecking the city. Complete challenges for bonus DNA. Equipped parts change your monster and its abilities.</p></div></div>
+    <div id="tuning" className="ov"><div className="pnl glass tuning-panel"><div className="panel-heading"><div><small>LIVE TEST CONTROLS</small><h2>TEST SETTINGS</h2></div><button className="s" id="close-tuning">Close</button></div><div id="tuning-fields" /><div className="bt"><button id="tuning-reset" className="s">Reset defaults</button><button id="tuning-export">Export JSON</button></div><textarea id="tuning-json" readOnly aria-label="Settings JSON" placeholder="Export settings to copy them here" /></div></div>
     <div id="toast"></div>
     <div id="banner"></div>
     <div id="preloader" className="loading-screen" role="status" aria-live="polite">

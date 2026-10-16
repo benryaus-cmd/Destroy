@@ -36,12 +36,12 @@ const App = () => {
   return <>
       <canvas id="c" />
       <div id="menu" className="ov on">
-        <div id="logo"><small>MONSTER MAKER</small><h1>RAMPAGE</h1><div className="drip"></div></div>
-        <div id="mbot">
+        <div id="logo"><small>MONSTER MAKER · CONQUEST TEST</small><h1>RAMPAGE</h1><div className="drip"></div></div>
+        <div id="campaign-summary" className="glass"><span className="eyebrow">YOUR CITY. YOUR CREATURE.</span><h2>Leave a bigger mark.</h2><p id="campaign-info">Eat. Evolve. Tear the city apart.</p><div className="campaign-actions"><button id="quick-start">START RAMPAGE</button><button className="s" id="continue-run">CONTINUE CITY</button><button className="s" id="open-mutations">EVOLVE</button></div><small id="campaign-status">Progress saves on this device.</small></div><div id="mbot">
           <div id="slots"></div>
           <div id="mbar">
             <button className="s" id="mq">Graphics: High</button>
-            <button className="s" id="mh">How to play</button>
+            <button className="s" id="mh">How to play</button><button className="s" id="menu-tune">Test settings</button>
           </div>
           <div className="gore-controls" aria-label="Gore settings">
             <button className="s gore-toggle" id="gore-menu-toggle" type="button" aria-pressed="true">Gore: On</button>
@@ -79,14 +79,14 @@ const App = () => {
             <button className="s" id="mb" aria-label="Pause"><Icon name="pause" /></button>
           </div>
         </div>
-        <div id="cnt" className="pe">
+        <div id="conquest-hud" className="glass pe"><div><span id="district-label">MIDTOWN</span><b id="growth-label">HATCHLING</b></div><div className="growth-track"><i id="growth-fill" /></div><small id="challenge-label">Eat to grow</small><small id="save-status">Progress saved locally</small></div><div id="action-hint" /><button className="s" id="game-tune">TUNE</button><div id="cnt" className="pe">
           <span className="glass metric" id="k1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /></svg><b id="k1v">0</b></span>
           <span className="glass metric" id="k2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10H3z" /><path d="M9 21v-7h6v7" /></svg><b id="k2v">0</b></span>
           <span className="glass metric" id="k3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h18l-2-5H6zM5 13l-2 4v2h18v-2l-2-4" /><circle cx="7" cy="17" r="1" /><circle cx="17" cy="17" r="1" /></svg><b id="k3v">0</b></span>
         </div>
       </div>
       <div id="btns">
-        <button id="bs" className="act"><b>SMASH</b><small>E</small><u></u></button>
+        <button id="bg" className="act utility"><b id="grab-label">GRAB</b><small>Q</small><u /></button><button id="bj" className="act utility"><b id="jump-label">JUMP / SLAM</b><small>R</small><u /></button><button id="bd" className="act utility"><b>CHARGE</b><small>F</small><u /></button><button id="bp" className="act utility"><b>POWER</b><small>X</small><u /></button><button id="bs" className="act"><b>SMASH</b><small>E</small><u></u></button>
         <button id="bc" className="act"><b>CHOMP</b><small>SPACE</small><u></u></button>
       </div>
       <div id="joy"><i></i></div>
