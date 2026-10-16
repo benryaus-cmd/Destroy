@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "name": "Monster Maker Rampage — Conquest test v0.2",
+  "baseUrl": "https://raw.githubusercontent.com/benryaus-cmd/Destroy/2022f61a48d642ebb84fc4632068ba13ffaf658c/",
+  "files": [
+    {
+      "source": "public/assets/characters/LICENSE.txt",
+      "target": "public/assets/characters/LICENSE.txt"
+    },
+    {
+      "source": "public/assets/characters/casual-female.glb",
+      "target": "public/assets/characters/casual-female.glb"
+    },
+    {
+      "source": "public/assets/characters/casual-male.glb",
+      "target": "public/assets/characters/casual-male.glb"
+    },
+    {
+      "source": "public/assets/characters/manifest.json",
+      "target": "public/assets/characters/manifest.json"
+    },
+    {
+      "source": "src/App.tsx",
+      "target": "src/App.tsx"
+    },
+    {
+      "source": "src/game/GameDialogs.tsx",
+      "target": "src/game/GameDialogs.tsx"
+    },
+    {
+      "source": "src/game/actions.js",
+      "target": "src/game/actions.js"
+    },
+    {
+      "source": "src/game/conquest.js",
+      "target": "src/game/conquest.js"
+    },
+    {
+      "source": "src/game/conquestRuntime.js",
+      "target": "src/game/conquestRuntime.js"
+    },
+    {
+      "source": "src/game/crowdAssets.js",
+      "target": "src/game/crowdAssets.js"
+    },
+    {
+      "source": "src/game/destruction.js",
+      "target": "src/game/destruction.js"
+    },
+    {
+      "source": "src/game/fireFX.js",
+      "target": "src/game/fireFX.js"
+    },
+    {
+      "source": "src/game/game.css",
+      "target": "src/game/game.css"
+    },
+    {
+      "source": "src/game/monsterGame.js",
+      "target": "src/game/monsterGame.js"
+    },
+    {
+      "source": "src/index.css",
+      "target": "src/index.css"
+    },
+    {
+      "source": "src/main.tsx",
+      "target": "src/main.tsx"
+    }
+  ]
+}
