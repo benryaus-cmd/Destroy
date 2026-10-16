@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "name": "Monster Rampage city and character trials v0.5.0",
+  "baseUrl": "https://raw.githubusercontent.com/benryaus-cmd/Destroy/3e813e3c61fd9e109063a33381500642000ad15a/",
+  "files": [
+    {
+      "source": "public/assets/characters/LICENSE.txt",
+      "target": "public/assets/characters/LICENSE.txt"
+    },
+    {
+      "source": "public/assets/characters/casual-female.glb",
+      "target": "public/assets/characters/casual-female.glb"
+    },
+    {
+      "source": "public/assets/characters/casual-male.glb",
+      "target": "public/assets/characters/casual-male.glb"
+    },
+    {
+      "source": "public/assets/characters/manifest.json",
+      "target": "public/assets/characters/manifest.json"
+    },
+    {
+      "source": "public/assets/city/LICENSE.txt",
+      "target": "public/assets/city/LICENSE.txt"
+    },
+    {
+      "source": "public/assets/city/dumpster.glb",
+      "target": "public/assets/city/dumpster.glb"
+    },
+    {
+      "source": "public/assets/city/light-curved.glb",
+      "target": "public/assets/city/light-curved.glb"
+    },
+    {
+      "source": "public/assets/city/manifest.json",
+      "target": "public/assets/city/manifest.json"
+    },
+    {
+      "source": "public/assets/city/police.glb",
+      "target": "public/assets/city/police.glb"
+    },
+    {
+      "source": "public/assets/city/race.glb",
+      "target": "public/assets/city/race.glb"
+    },
+    {
+      "source": "public/assets/city/road-sign-stop.glb",
+      "target": "public/assets/city/road-sign-stop.glb"
+    },
+    {
+      "source": "public/assets/city/sedan-sports.glb",
+      "target": "public/assets/city/sedan-sports.glb"
+    },
+    {
+      "source": "public/assets/city/sedan.glb",
+      "target": "public/assets/city/sedan.glb"
+    },
+    {
+      "source": "public/assets/city/suv.glb",
+      "target": "public/assets/city/suv.glb"
+    },
+    {
+      "source": "public/assets/city/taxi.glb",
+      "target": "public/assets/city/taxi.glb"
+    },
+    {
+      "source": "public/assets/city/traffic-light.glb",
+      "target": "public/assets/city/traffic-light.glb"
+    },
+    {
+      "source": "public/assets/monsters/godzilla.glb",
+      "target": "public/assets/monsters/godzilla.glb"
+    },
+    {
+      "source": "public/assets/monsters/kong.glb",
+      "target": "public/assets/monsters/kong.glb"
+    },
+    {
+      "source": "src/App.tsx",
+      "target": "src/App.tsx"
+    },
+    {
+      "source": "src/game/GameDialogs.tsx",
+      "target": "src/game/GameDialogs.tsx"
+    },
+    {
+      "source": "src/game/actions.js",
+      "target": "src/game/actions.js"
+    },
+    {
+      "source": "src/game/archetypes.js",
+      "target": "src/game/archetypes.js"
+    },
+    {
+      "source": "src/game/buildingCollision.js",
+      "target": "src/game/buildingCollision.js"
+    },
+    {
+      "source": "src/game/cameraInterior.js",
+      "target": "src/game/cameraInterior.js"
+    },
+    {
+      "source": "src/game/cameraRig.js",
+      "target": "src/game/cameraRig.js"
+    },
+    {
+      "source": "src/game/carrying.js",
+      "target": "src/game/carrying.js"
+    },
+    {
+      "source": "src/game/characterTrials.js",
+      "target": "src/game/characterTrials.js"
+    },
+    {
+      "source": "src/game/cityAssets.js",
+      "target": "src/game/cityAssets.js"
+    },
+    {
+      "source": "src/game/cleanup.js",
+      "target": "src/game/cleanup.js"
+    },
+    {
+      "source": "src/game/conquest.js",
+      "target": "src/game/conquest.js"
+    },
+    {
+      "source": "src/game/conquestRuntime.js",
+      "target": "src/game/conquestRuntime.js"
+    },
+    {
+      "source": "src/game/crowdAssets.js",
+      "target": "src/game/crowdAssets.js"
+    },
+    {
+      "source": "src/game/destruction.js",
+      "target": "src/game/destruction.js"
+    },
+    {
+      "source": "src/game/endlessCity.js",
+      "target": "src/game/endlessCity.js"
+    },
+    {
+      "source": "src/game/feeding.js",
+      "target": "src/game/feeding.js"
+    },
+    {
+      "source": "src/game/fireFX.js",
+      "target": "src/game/fireFX.js"
+    },
+    {
+      "source": "src/game/game.css",
+      "target": "src/game/game.css"
+    },
+    {
+      "source": "src/game/jumpLanding.js",
+      "target": "src/game/jumpLanding.js"
+    },
+    {
+      "source": "src/game/monsterGame.js",
+      "target": "src/game/monsterGame.js"
+    },
+    {
+      "source": "src/game/occlusionOutlines.js",
+      "target": "src/game/occlusionOutlines.js"
+    },
+    {
+      "source": "src/game/runProgress.js",
+      "target": "src/game/runProgress.js"
+    },
+    {
+      "source": "src/game/steering.js",
+      "target": "src/game/steering.js"
+    },
+    {
+      "source": "src/game/throwPhysics.js",
+      "target": "src/game/throwPhysics.js"
+    },
+    {
+      "source": "src/game/tuningExport.js",
+      "target": "src/game/tuningExport.js"
+    },
+    {
+      "source": "src/index.css",
+      "target": "src/index.css"
+    },
+    {
+      "source": "src/main.tsx",
+      "target": "src/main.tsx"
+    }
+  ]
+}
