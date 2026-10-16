@@ -1,6 +1,6 @@
 # Monster Maker Rampage: Conquest test build
 
-A portrait-first Three.js monster destruction game. The original creature creator remains; the conquest test adds persistent city damage, earned evolution and physical attack tools.
+A portrait-first Three.js monster destruction game. The original creature creator remains; the endless-runs test adds procedural city streaming, short facing-directed throws and post-run upgrades.
 
 ## Run locally
 
@@ -18,7 +18,7 @@ Open http://127.0.0.1:8080. For an existing clone, stop Vite, run `git pull`, `n
 | Action | Keyboard | Mobile |
 |---|---|---|
 | Move | WASD / arrows | Left-side floating stick |
-| Camera / throw aim | Drag / wheel | Drag right side / zoom buttons |
+| Camera | Wheel / zoom buttons | Zoom buttons |
 | Chomp | Space | CHOMP |
 | Smash | E | SMASH |
 | Grab / throw | Q | GRAB / THROW |
@@ -29,23 +29,15 @@ Open http://127.0.0.1:8080. For an existing clone, stop Vite, run `git pull`, `n
 
 Throw follows the camera direction. Feed first: buildings become breakable after the first growth stage. Jump next to an intact structure after growing to climb; press again to launch, then again to slam. Armoured forces arrive at threat 3; rival monsters join higher threats. Mutation parts unlock through XP and are bought with earned DNA in EVOLVE; changes apply to the next sortie.
 
-## Persistence
+## Endless runs and upgrades
 
-The city seed, damaged building sections and permanent XP/DNA/challenges persist on this device. CONTINUE CITY restores the active creature, mutation, position, health, camera, score and cars. Autosave runs every five active seconds and on pause/menu. Save & menu preserves the sortie; starting a different sortie banks the previous one once. Death banks earned progress and clears the active sortie; the city remains damaged. A different creature uses the same conquered city.
+Every Play, New City or new-rampage action creates a fresh procedural city and a small monster. The city streams a bounded 3×3 chunk neighborhood as you move, with no outer map boundary. Damage remains while revisiting within the same run; it resets for the next run.
 
-Original five creature slots remain in `mmr5`; conquest uses `monster-conquest-v1`. Export live test settings from TUNE or Test settings. Each value and the complete set can reset independently. City population and combat enemies respawn; this is not a byte-for-byte saved simulation of every civilian, bullet and particle.
+Feed to grow during a run. On death or End run & menu, earn one destruction point per 100 score. Spend points through the end screen's upgrade button or UPGRADES in the menu. Health, feeding reach, smash damage, thrown-object damage and healing upgrades persist. Growth and city damage do not. Points, upgrades and best scores use `monster-rampage-progression-v1`; legacy creator/conquest saves remain separate and are not deleted.
 
-## Included systems
+Throws follow the monster's facing and use a shorter arc. Cars and tanks can be lifted; vehicle collisions damage actual building sections even when the monster is small. Chomp visibly bends down and pulls captured people into the mouth. The camera follows from overhead; drag no longer orbits the world. Use zoom buttons or wheel to change framing.
 
-- Seeded section-built facades with windows, floors/interiors, support damage and collapse debris.
-- Car lifting/throwing with swept section collision; charge, jump/slam, contextual climbing and shockwave.
-- Permanent XP/DNA, four district challenge sets, four earned visible mutations and local bests.
-- Growth during sorties and permanent growth contribution between sorties.
-- Authored Quaternius animated civilian models copied from 3d-Maker with procedural fallback.
-- Pooled fire/smoke/light effects, existing dismemberment and blood decals, synthesised sound.
-- Compact portrait HUD and live settings with JSON export.
-
-Existing Aippy score submission remains available when hosted there; this build does not add a separate conquest leaderboard server or claim a confirmed online rank.
+TUNE exposes live settings, per-value resets and JSON export. The old Aippy score submission is retained; no new leaderboard service is introduced. Assets and attribution are in `docs/asset-sources.md`.
 
 ## Verify
 

@@ -5,7 +5,7 @@ import { createConquest, bankRun, equipMutation, readConquest } from '../src/gam
 import { createDestructibleBuilding, damageBuilding, serializeBuilding, getBuildingSections } from '../src/game/destruction.js';
 import {
   campaign, tuning, DEFAULT_TUNING, initializeSystems, prepareGame, saveCity,
-  pendingResume, action, updateSystems, mutationConfig, roofAt,
+  pendingResume, action, updateSystems, mutationConfig, roofAt, resetRunCity, finishRun, runProgress,
 } from '../src/game/conquestRuntime.js';
 
 // These tests run actual Three scene objects and simulation code in Node. The
@@ -164,7 +164,7 @@ test('paused updates do not advance motion, cooldowns, input actions or progress
   assert.equal(h.calls.damage.length, 0);
 });
 
-test('grab holds a real vehicle, respects cooldown and throws along camera aim', () => {
+test('grab holds a real vehicle, respects cooldown and throws along monster facing', () => {
   const h = harness();
   const g = h.use(game());
   const c = g.cars[0];
@@ -185,8 +185,8 @@ test('grab holds a real vehicle, respects cooldown and throws along camera aim',
   assert.equal(c.held, false);
   assert.equal(g.projectiles.length, 1);
   assert.equal(g.projectiles[0], c);
-  assert.ok(c.projectile.v.z < -20);
-  assert.ok(Math.abs(c.projectile.v.x) < 1e-8);
+  assert.ok(c.projectile.v.x >= 18);
+  assert.ok(Math.abs(c.projectile.v.z) < 1e-8);
   assert.ok(c.projectile.v.y > 0);
   assert.equal(campaign.districts.uptown.throws, 1);
 });
@@ -293,3 +293,6 @@ test('jump while climbing launches immediately and walking off a roof returns to
 });
 
 test('a removed rooftop tile stops supporting the monster while adjacent roof remains solid',()=>{const h=harness(),b=building(0,0,4),g=h.use(game({buildings:[b],eaten:6}));assert.equal(roofAt(b,2,2),true);const result=damageBuilding(b.m,{x:2,y:4.12,z:2,radius:.2,damage:40});assert.equal(result.collapsed,false);assert.equal(roofAt(b,2,2),false);assert.equal(roofAt(b,-2,-2),true);g.roofBuilding=b;g.roofY=4.3;g.mon.position.set(2,4.3,2);updateSystems(g,.1,.1,{});assert.ok(g.jump);assert.equal(g.roofY,0);});
+
+test('each endless run starts small regardless of previous XP and resets city damage without losing banked upgrades',()=>{const h=harness();campaign.xp=99999;campaign.buildings={old:{collapsed:true}};campaign.activeRun={id:'old',health:90,config:{size:4}};resetRunCity();assert.deepEqual(campaign.buildings,{});assert.equal(campaign.activeRun,null);const config=mutationConfig({size:2.2,parts:{}});assert.equal(config.size,.65);const g=game();g.endless=true;g.c=config;g.base=config.size;h.use(g);assert.equal(g.sz,.65);assert.equal(g.growth.stage,0);assert.deepEqual(g.equipped,[]);Object.assign(g,{score:1950,eaten:12,destroyed:4});finishRun(g);assert.equal(runProgress.points,19);finishRun(g);assert.equal(runProgress.points,19);resetRunCity();assert.equal(runProgress.points,19);assert.equal(runProgress.bests.score,1950);});
+test('an armed tank can be lifted and thrown without firing or hitting itself',()=>{const h=harness(),g=h.use(game());g.cars=[];const tank={id:'tank-1',rival:false,hp:200,m:new THREE.Group(),cd:0};g.S.add(tank.m);tank.m.position.set(1,0,0);g.enemies.push(tank);action(g,'grab');assert.equal(g.held,tank);assert.equal(tank.held,true);g.mon.rotation.y=Math.PI/2;updateSystems(g,.31,.31,{});assert.equal(tank.hp,200);action(g,'grab');assert.equal(g.held,null);assert.ok(tank.projectile.v.x>0);assert.ok(Math.abs(tank.projectile.v.z)<1e-8);updateSystems(g,.1,.41,{});assert.equal(tank.hp,200);assert.ok(tank.projectile);});

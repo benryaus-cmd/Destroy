@@ -36,8 +36,8 @@ const App = () => {
   return <>
       <canvas id="c" />
       <div id="menu" className="ov on">
-        <div id="logo"><small>MONSTER MAKER · CONQUEST TEST</small><h1>RAMPAGE</h1><div className="drip"></div></div>
-        <div id="campaign-summary" className="glass"><span className="eyebrow">YOUR CITY. YOUR CREATURE.</span><h2>Leave a bigger mark.</h2><p id="campaign-info">Eat. Evolve. Tear the city apart.</p><div className="campaign-actions"><button id="quick-start">START RAMPAGE</button><button className="s" id="continue-run">CONTINUE CITY</button><button className="s" id="open-mutations">EVOLVE</button></div><small id="campaign-status">Progress saves on this device.</small></div><div id="mbot">
+        <div id="logo"><small>MONSTER MAKER · ENDLESS RAMPAGE</small><h1>RAMPAGE</h1><div className="drip"></div></div>
+        <div id="campaign-summary" className="glass"><span className="eyebrow">YOUR CITY. YOUR CREATURE.</span><h2>Start small. Wreck everything.</h2><p id="campaign-info">Grow through an endless city. Survive. Earn upgrades.</p><div className="campaign-actions"><button id="quick-start">START RAMPAGE</button><button className="s" id="continue-run">NEW CITY</button><button className="s" id="open-mutations">UPGRADES</button></div><small id="campaign-status">Progress saves on this device.</small></div><div id="mbot">
           <div id="slots"></div>
           <div id="mbar">
             <button className="s" id="mq">Graphics: High</button>

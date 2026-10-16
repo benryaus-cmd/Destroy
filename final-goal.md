@@ -1,12 +1,18 @@
-# Monster conquest: target game
+# Monster Maker Rampage: endless runs
 
-The player creates and evolves a monster, eats and grows, physically tears apart a reactive city and survives escalating opposition. This is the approved direction, not a claim that every long-term feature is complete.
+Current direction, updated 16 October 2026 after phone playtesting:
 
-## Test build scope
-Preserve the existing monster creator, colour/pose controls, gore options, keyboard/touch play and five creature slots. Deliver a runnable Vite project with saved conquest, meaningful earned mutations, growth within and across runs, local destruction challenges and local best scores. Replace whole-box damage with local breakable building sections and visible interiors. Add grabbing/throwing vehicles, charge, jump/body-slam and contextual climb. Improve civilian silhouettes, fire/gore, sound and mobile HUD. Resume the same deterministic city with its damage, score, creature and health. Death preserves banked permanent progress but starts a new sortie. Earned parts apply to the creature and gameplay. Existing Aippy leaderboard reporting remains separate from local bests.
+Start every run as a small monster in a freshly generated endless city. Eat people, throw cars and tanks into buildings, grow, demolish structures and survive an escalating response. The overhead camera follows the monster. Travel creates new city chunks and retires distant geometry; there is no map perimeter.
 
-## Long-term goal
-Multiple districts, substantial military responses, rival monsters, large-scale structural failures, more powers/parts, conquest-specific online leaderboards and authored challenge variety. Quality benchmark: eat people, grow, grab a car, throw it through a facade, climb a damaged building and body-slam it into collapse under retaliation.
+Death ends the run. Earn one destruction point per 100 score, then spend points on permanent health, feeding reach, smash damage, thrown-object damage and recovery upgrades. Every Play/Continue/New City starts a fresh city and resets size and run counters. Unspent points, purchased upgrades and best scores persist. The old creator still supplies the creature's appearance; its size setting does not bypass the small start.
 
-## Quality
-Portrait-first responsive controls with visible keyboard equivalents. Building damage occurs around actual impacts, walls have holes and collapse follows structural damage. Bounded physical debris/fire effects. Persistent state survives reload, malformed storage and repeated banking without duplicate rewards. Preserve creator saves. Source, assets and build instructions live in Destroy. Record asset provenance. Report automated tests and browser limitations honestly.
+## Required feel
+- Chomp bends the monster down, opens its jaw and visibly pulls people into the mouth before consumption.
+- Grab can lift cars or tanks. Throws follow the monster's facing, with a short, low arc.
+- Physical impacts damage building sections at contact even before the first growth milestone.
+- Buildings have local holes, interiors, support loss and collapse debris.
+- The city remains populated and intact ahead, with bounded active chunks, civilians, particles and debris.
+- Run points settle once; death cannot complete a pending bite or change banked score.
+- Mobile controls stay compact and readable. Test settings remain available.
+
+Longer-term polish: richer district identities, more authored enemy behavior, more creature abilities, refined animation/physics and tuned score competition. Source-level tests and a build do not establish AAA quality or physical-device performance.
