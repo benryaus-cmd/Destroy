@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "name": "Monster Maker Rampage — Endless runs v0.3",
+  "baseUrl": "https://raw.githubusercontent.com/benryaus-cmd/Destroy/9240a015807fce8aae982445c1fe22bd5260664a/",
+  "files": [
+    {
+      "source": "public/assets/characters/LICENSE.txt",
+      "target": "public/assets/characters/LICENSE.txt"
+    },
+    {
+      "source": "public/assets/characters/casual-female.glb",
+      "target": "public/assets/characters/casual-female.glb"
+    },
+    {
+      "source": "public/assets/characters/casual-male.glb",
+      "target": "public/assets/characters/casual-male.glb"
+    },
+    {
+      "source": "public/assets/characters/manifest.json",
+      "target": "public/assets/characters/manifest.json"
+    },
+    {
+      "source": "src/App.tsx",
+      "target": "src/App.tsx"
+    },
+    {
+      "source": "src/game/GameDialogs.tsx",
+      "target": "src/game/GameDialogs.tsx"
+    },
+    {
+      "source": "src/game/actions.js",
+      "target": "src/game/actions.js"
+    },
+    {
+      "source": "src/game/conquest.js",
+      "target": "src/game/conquest.js"
+    },
+    {
+      "source": "src/game/conquestRuntime.js",
+      "target": "src/game/conquestRuntime.js"
+    },
+    {
+      "source": "src/game/crowdAssets.js",
+      "target": "src/game/crowdAssets.js"
+    },
+    {
+      "source": "src/game/destruction.js",
+      "target": "src/game/destruction.js"
+    },
+    {
+      "source": "src/game/endlessCity.js",
+      "target": "src/game/endlessCity.js"
+    },
+    {
+      "source": "src/game/feeding.js",
+      "target": "src/game/feeding.js"
+    },
+    {
+      "source": "src/game/fireFX.js",
+      "target": "src/game/fireFX.js"
+    },
+    {
+      "source": "src/game/game.css",
+      "target": "src/game/game.css"
+    },
+    {
+      "source": "src/game/monsterGame.js",
+      "target": "src/game/monsterGame.js"
+    },
+    {
+      "source": "src/game/runProgress.js",
+      "target": "src/game/runProgress.js"
+    },
+    {
+      "source": "src/index.css",
+      "target": "src/index.css"
+    },
+    {
+      "source": "src/main.tsx",
+      "target": "src/main.tsx"
+    }
+  ]
+}
