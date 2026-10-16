@@ -30,3 +30,16 @@ Missing lower wall bays propagate upward through the same column, including rest
 Phone feedback identified confusing camera-relative steering in v0.4. Replaced the latched camera basis and automatic movement-facing turn with tank controls shared by touch stick, keyboard and gamepad: forward follows current facing, reverse retains facing, and left/right rotate independently, including while stationary or reversing. The camera continues to follow through its existing TUNE settings. Turn speed is adjustable. Shadow darkness controls the directional shadow intensity live, from 0 to 1, without changing ambient light or exposure.
 
 70 Node tests and production build passed. Four new tests verify forward/reverse facing, in-place turns, reverse turns, blocked input and equivalent turning paths at 30/120 simulation steps per second. Inspected a frame of the supplied phone recording; a fresh phone playtest remains necessary for feel. No renderer-based playthrough is claimed.
+
+
+# Screen controls and visibility v0.4.2
+
+Replaced tank steering with continuous screen-relative movement using the displayed camera yaw. Added a regression that eases stick-left toward stick-up while rotating the camera 90° and verifies straight world travel. The monster faces travel along the shortest turn arc; diagonal input is normalized, idle/deadzone/blocked input is stationary. Camera follow still uses saved settings. Camera is initialized before the first playable frame.
+
+Applied the six changed defaults from the supplied screenshot: camera position smoothing 14, camera turn smoothing 0.5, ambient 1.75, sunlight 2.4, shadow darkness 0.55, climb speed 6. Existing local tuning overrides remain.
+
+Added a building-depth/actor-silhouette outline pass for hidden actors. Uses original meshes including animated skinned civilians, real instanced building sections, two half-resolution targets, a bounded material cache and explicit disposal. Tests exercise actual Three objects for depth comparisons, correct mask selection, holes retained in instance matrices, normal/error-path scene and renderer restoration, and target disposal. They verify orchestration, not rendered pixels or GPU shader execution.
+
+Copy uses clipboard API then native selection/copy fallback, with honest success feedback. Context menus are permitted for text fields. Save JSON supplies an alternative download. Tests cover secure clipboard success, HTTP API absence, rejected/denied copy and exact JSON settings.
+
+79 Node tests and production build passed. Browser rendering verification was attempted at the local test URL, but the browser blocked it with ERR_BLOCKED_BY_CLIENT. Physical-phone steering feel, outline appearance and frame rate remain for the next playtest.

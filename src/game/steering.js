@@ -1,14 +1,14 @@
-const axis = value => Math.max(-1,Math.min(1,Number.isFinite(value)?value:0));
-/** Facing-relative forward/reverse with independent left/right rotation. */
-export function applyTankSteering(mon,turn,throttle,dt,{moveSpeed=1,turnSpeed=2.4,blocked=false}={}){
+const axis=value=>Math.max(-1,Math.min(1,Number.isFinite(value)?value:0));
+/** Walk toward the stick on screen using this frame's actual camera heading. */
+export function applyScreenSteering(mon,horizontal,forward,dt,{cameraYaw=0,moveSpeed=1,turnSpeed=2.4,blocked=false}={}){
  if(blocked)return 0;
- turn=axis(turn);throttle=axis(throttle);
- if(Math.abs(turn)<.05)turn=0;if(Math.abs(throttle)<.05)throttle=0;
- const seconds=Math.max(0,dt),angle=-turn*turnSpeed*seconds,heading=mon.rotation.y;
- // Integrate the turn arc so the same input has the same path at any frame rate.
- const half=angle/2,arc=Math.abs(half)<1e-8?1:Math.sin(half)/half,distance=throttle*moveSpeed*seconds*arc;
- mon.position.x+=Math.sin(heading+half)*distance;
- mon.position.z+=Math.cos(heading+half)*distance;
- mon.rotation.y=heading+angle;
- return Math.abs(throttle);
+ let x=axis(horizontal),y=axis(forward);const magnitude=Math.hypot(x,y);
+ if(magnitude<.05)return 0;
+ if(magnitude>1){x/=magnitude;y/=magnitude;}
+ const seconds=Math.max(0,dt),sin=Math.sin(cameraYaw),cos=Math.cos(cameraYaw);
+ const dx=cos*x-sin*y,dz=-sin*x-cos*y;
+ mon.position.x+=dx*moveSpeed*seconds;mon.position.z+=dz*moveSpeed*seconds;
+ const desired=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(desired-mon.rotation.y),Math.cos(desired-mon.rotation.y)),maxTurn=turnSpeed*seconds;
+ mon.rotation.y+=Math.max(-maxTurn,Math.min(maxTurn,difference));
+ return Math.min(1,magnitude);
 }

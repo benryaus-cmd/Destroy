@@ -53,8 +53,17 @@ Browser/Android visual playtesting is required before treating this as a polishe
 
 ### v0.4 playtest polish
 
-Open TUNE during play or pause. The overhead camera now follows the monster’s heading smoothly by default, with 70° pitch and 65° FOV. Switch Follow to Fixed to compare; adjust position/turn smoothing, yaw offset, distance, pitch and FOV live. Steering uses tank controls: up/W moves in the monster’s facing direction, down/S reverses, and left/right or A/D turn in place or while moving. Camera follow is independent of steering. TUNE includes turn speed and shadow darkness (0=no cast shadows, 1=full). Ambient light, sunlight and exposure are also adjustable and saved locally.
+Open TUNE during play or pause. The overhead camera now follows the monster’s heading smoothly by default, with 70° pitch and 65° FOV. Switch Follow to Fixed to compare; adjust position/turn smoothing, yaw offset, distance, pitch and FOV live. Steering follows the current screen direction: point the stick or use WASD/arrows where you want to walk. As the camera follows, ease the stick back toward up to preserve your world travel direction. The monster turns toward travel at the configured turn speed. TUNE includes turn speed and shadow darkness (0=no cast shadows, 1=full). Ambient light, sunlight and exposure are also adjustable and saved locally.
 
 GRAB picks up nearby people as well as vehicles. Face a wall and THROW to leave a blood splat (when gore is enabled). Hatchlings can climb immediately, with alternating climbing limbs. Removing a lower wall bay brings down its upper wall bays; a small capped cube burst accompanies the section debris.
 
 Debris, splats, fire and enemies are cleaned up far from the monster. Nine city chunks stay loaded; damage history is capped at 64 chunks, so very old distant blocks can regenerate on revisiting. Each new run still resets the city.
+
+
+### v0.4.2 controls and visibility
+
+Screen-relative movement uses the camera’s current yaw every frame. There is no latched heading or turn-only stick axis. Defaults match the supplied tuning screenshot: position response 14, camera turn response 0.5, ambient 1.75, sunlight 2.4, shadow darkness 0.55 and climb speed 6; pitch remains 70° and FOV 65°. Existing saved tuning stays intact.
+
+Hidden monster, people, vehicles and threats receive a silhouette outline through buildings: lime for the player, cyan for civilians, gold for vehicles and warm colors for threats. Original animated meshes and building sections drive the effect, so smashed holes remain visible. TUNE has an Occlusion Outlines toggle. Two half-resolution masks and their resources are released on ending/replacing the game scene.
+
+Copy JSON supports both the clipboard API and a native copy fallback for HTTP Wi-Fi play. Long-press selection is enabled in the text field; Save JSON also downloads the settings as a file.

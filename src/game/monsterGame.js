@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { reportScore } from '@aippy/runtime/leaderboard';
 import {createDestructibleBuilding,damageBuilding,serializeBuilding,getBuildingIntegrity,getBuildingSections} from './destruction.js';
-import {applyTankSteering} from './steering.js';
+import {applyScreenSteering} from './steering.js';
+import {createOcclusionOutlines} from './occlusionOutlines.js';
 import {cameraStep} from './cameraRig.js';
 import {cleanupDistant,releaseHumanInteraction} from './cleanup.js';
 import {beginFeeding,advanceFeeding,chompPose} from './feeding.js';
@@ -1159,7 +1160,7 @@ function show(id) {
     ['menu', 'edit', 'hud'].forEach(k => $(k).classList.toggle('on', k == id));
     $('btns').style.display = id == 'hud' ? 'flex' : 'none';
     ['over', 'pause', 'help'].forEach(k => $(k).classList.remove('on'));
-    $('hint').textContent = id == 'hud' ? 'W/S / stick up/down: forward/reverse · A/D / stick left/right: turn · Space: chomp · E: smash · overhead camera · wheel or ＋/－: zoom · Esc: pause' : ''
+    $('hint').textContent = id == 'hud' ? 'WASD / stick: walk in the screen direction · Space: chomp · E: smash · overhead camera · wheel or ＋/－: zoom · Esc: pause' : ''
 }
 function focusPrev() {
     cfg = Object.assign({}, DEF, slots[foc] || {});
@@ -1838,6 +1839,7 @@ function sharedGameResources() {
     }
 }
 function disposeGame(g) {
+    g.occlusionFX?.dispose();
     disposeCrowdAssets(g);
     g.city?.dispose();
     const shared = sharedGameResources();
@@ -1897,7 +1899,7 @@ if(avg>1/38){if(PRS>.78){PRS=Math.max(.7,PRS-.12);applyQual()}else if(QUAL!='low
 function dbgTick(dt){perf.acc+=dt;perf.f++;if(perf.acc<.5)return;let e=$('dbg');if(!e){e=document.createElement('div');e.id='dbg';e.style.cssText='position:fixed;left:6px;bottom:6px;font:11px monospace;color:#0f0;background:#000a;padding:4px 6px;z-index:99;pointer-events:none;white-space:pre';document.body.append(e)}
 const i=rd.info;e.textContent=Math.round(perf.f/perf.acc)+' fps · '+QUAL+' x'+rd.getPixelRatio().toFixed(2)+'\ncalls '+i.render.calls+' tris '+i.render.triangles+'\ngeometries '+i.memory.geometries+' textures '+i.memory.textures;perf.acc=0;perf.f=0}
 function autoPause(){if(mode=='game'&&G&&!G.over&&!G.paused)pauseT()}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause()});addEventListener('blur',autoPause);addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause()});addEventListener('blur',autoPause);addEventListener('contextmenu',e=>{if(!e.target.closest?.('textarea,input'))e.preventDefault();});
 
 const WC=['#f2e3c6','#e9c8a7','#cfe1ef','#d6e6c8','#f0c9c9','#e8e2b9','#c9d3e8'],RC=['#9c3b2e','#5b4636','#3a5a78','#6a6a72','#7a3a3a'],RED=['#8a0b0b','#b31212','#6e0808','#c01818'];
 const gy=(x,z)=>{if(G?.endless)return .25;const g=G,T=g.T,P=g.P;return Math.abs(x)<T/2&&Math.abs(z)<T/2&&Math.abs(((x+T/2)%P+P)%P-P/2)<g.B/2&&Math.abs(((z+T/2)%P+P)%P-P/2)<g.B/2?.27:.04};
@@ -2372,11 +2374,8 @@ function warmScene() {
         })
     });
     textures.forEach(texture => texture.needsUpdate = true);
-    const position = G.mon.position;
     cam.clearViewOffset();
-    cam.position.set(position.x + 12, position.y + 18, position.z + 30);
-    cam.lookAt(position.x, 1.5, position.z);
-    cam.updateProjectionMatrix();
+    updateCamera(G,0);
     rd.compile(G.S, cam);
     rd.render(G.S, cam)
 }
@@ -2487,7 +2486,7 @@ function mmBase(){}
 function mmap(){const c=$('mm').getContext('2d'),g=G,span=100,scale=208/span,m=g.mon.position,px=x=>104+(x-m.x)*scale,pz=z=>104+(z-m.z)*scale;c.fillStyle='#293731';c.fillRect(0,0,208,208);c.fillStyle='#494e53';for(let i=Math.floor((m.x-50)/60);i<=(m.x+50)/60;i++)c.fillRect(px(i*60)-8,0,16,208);for(let i=Math.floor((m.z-50)/60);i<=(m.z+50)/60;i++)c.fillRect(0,pz(i*60)-8,208,16);for(const b of g.bl){c.fillStyle=b.dead?'#573832':'#b9b5aa';c.fillRect(px(b.x-b.w/2),pz(b.z-b.d/2),b.w*scale,b.d*scale);}for(const e of g.enemies){c.fillStyle='#ff6648';c.fillRect(px(e.m.position.x)-3,pz(e.m.position.z)-3,6,6);}c.save();c.translate(104,104);c.rotate(-g.mon.rotation.y);c.fillStyle='#d7ff51';c.beginPath();c.moveTo(0,7);c.lineTo(-5,-4);c.lineTo(5,-4);c.closePath();c.fill();c.restore();}
 function upd(dt,t){const g=G;if(g.paused)return;const m=g.mon,sz=g.sz,rad=m.userData.radius*sz;
 const pad=readPad(),ix=(pad?pad.x:0)+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+jv[0],iy=(pad?-pad.y:0)+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-jv[1],sp=(8+3*Math.sqrt(sz))*g.st.sp*tuning.moveSpeed,lim=g.T/2+14;
-const l=applyTankSteering(m,ix,iy,dt,{moveSpeed:sp,turnSpeed:tuning.turnSpeed,blocked:g.over||!!g.climbing});
+const l=applyScreenSteering(m,ix,iy,dt,{cameraYaw:g.cameraRig?.yaw??g.yaw,moveSpeed:sp,turnSpeed:tuning.turnSpeed,blocked:g.over||!!g.climbing});
 const hb=(g.jump||g.climbing||g.roofY)?null:resolve(m.position,rad);if(hb&&l>.1&&!g.climbing){dmgB(hb,dt*40*sz);if(Math.random()<.2)P(hb.x,2,hb.z,'#bbbbbb',2,3)}
 if(pad){if(pad.a)g.wc=1;if(pad.b)g.ws=1}
 g.cc-=dt;
@@ -2547,12 +2546,13 @@ g.mt=(g.mt||0)-dt;if(g.mt<=0){g.mt=.066;mmap()}
 g.shake=Math.max(0,g.shake-dt*1.5);updateCamera(g,dt);
 g.dl.position.set(m.position.x+45,80,m.position.z+25);g.dl.target.position.set(m.position.x,0,m.position.z)}
 function updateCamera(g,dt){const m=g.mon;g.cameraRig=cameraStep(g.cameraRig,{x:m.position.x,y:m.position.y,z:m.position.z,facing:m.rotation.y,size:g.sz}, {...tuning,cameraZoom:g.zd},dt);g.yaw=g.cameraRig.yaw;const p=g.cameraRig.position;cam.position.set(p.x,p.y,p.z);for(const b of nearbyBuildings(g,p.x,p.z))if(!b.dead&&Math.abs(p.x-b.x)<b.w/2+1.5&&Math.abs(p.z-b.z)<b.d/2+1.5&&p.y<b.h+2)cam.position.y=b.h+2;cam.position.x+=R(-1,1)*g.shake*tuning.shake;cam.position.y+=R(-1,1)*g.shake*tuning.shake;cam.fov=g.cameraRig.fov;cam.updateProjectionMatrix();const look=g.cameraRig.lookAt;cam.lookAt(look.x,look.y,look.z);}
+function renderOcclusion(g){if(!tuning.occlusionOutlines)return;g.occlusionFX??=createOcclusionOutlines(rd);const actors=[{object:g.mon,color:0xd7ff51},...g.hum.map(h=>({object:h.m,color:h.sol?0xff8360:0x75e7ff})),...g.cars.map(c=>({object:c.m,color:0xffd57b})),...g.enemies.map(e=>({object:e.m,color:e.rival?0xff77ab:0xff8360})),...g.trees.filter(t=>!t.f).map(t=>({object:t.m,color:0x9adf93}))];g.occlusionFX.render(g.S,cam,{actors,buildings:g.bl});}
 const clock=new T3.Clock();
 let lastTs=0;
 function loop(ts){requestAnimationFrame(loop);const gap=mode=='game'?(G&&G.paused?32:10):mode=='edit'?14:32;if(ts&&ts-lastTs<gap)return;lastTs=ts||0;
 const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
 rd.toneMappingExposure=tuning.exposure;if(G?.ambient)G.ambient.intensity=tuning.ambientLight;if(G?.dl){G.dl.intensity=tuning.sunLight;G.dl.shadow.intensity=tuning.shadowDarkness;}
-if(mode=='game'&&G){padPause();upd(dt,t);if(G.paused)updateCamera(G,dt);perfAdapt(dt);rd.render(G.S,cam)}
+if(mode=='game'&&G){padPause();upd(dt,t);if(G.paused)updateCamera(G,dt);perfAdapt(dt);rd.render(G.S,cam);renderOcclusion(G)}
 else if(pm){editorFrame(dt,t)}
 if(perf.dbg)dbgTick(dt)}
 initializeSystems({game:()=>G,getSlot:()=>idx,toast,banner,pause:pauseT,particles:P,ring,kill,splat:wallSplat,damage:dmgB,carBoom,hurt,resolve,start:()=>{let slot=foc;if(!slots[slot]){slots[slot]={...DEF};persist();}void play(slot);}});

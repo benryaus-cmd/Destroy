@@ -31,7 +31,7 @@ const GameDialogs = () => (
       <div className="pnl glass">
         <h2>HOW TO PLAY</h2>
         <div className="hp">
-          <b>Move</b> WASD / arrows, or the on-screen stick<br />
+          <b>Move</b> WASD / arrows, or point the stick where you want to walk on screen<br />
           <b>Chomp</b> Space or CHOMP — eat people to heal and grow<br />
           <b>Smash</b> E or SMASH — ground-pound for buildings, cars and crowds<br />
           <b>Camera</b> overhead follow; wheel or zoom buttons to zoom<br />
@@ -47,7 +47,7 @@ const GameDialogs = () => (
       </div>
     </div>
     <div id="evolution" className="ov"><div className="pnl glass evolution-panel"><div className="panel-heading"><div><small>SPEND YOUR DESTRUCTION POINTS</small><h2>UPGRADES</h2></div><button className="s" id="close-evolution">Close</button></div><p id="evolution-balance" /><div id="mutation-list" /><p className="fine">Earn 1 destruction point for every 100 score when a run ends. Buy permanent upgrades here, then start small in a fresh city.</p></div></div>
-    <div id="tuning" className="ov"><div className="pnl glass tuning-panel"><div className="panel-heading"><div><small>LIVE TEST CONTROLS</small><h2>TEST SETTINGS</h2></div><button className="s" id="close-tuning">Close</button></div><div id="tuning-fields" /><div className="bt"><button id="tuning-reset" className="s">Reset defaults</button><button id="tuning-export">Export JSON</button></div><textarea id="tuning-json" readOnly aria-label="Settings JSON" placeholder="Export settings to copy them here" /></div></div>
+    <div id="tuning" className="ov"><div className="pnl glass tuning-panel"><div className="panel-heading"><div><small>LIVE TEST CONTROLS</small><h2>TEST SETTINGS</h2></div><button className="s" id="close-tuning">Close</button></div><div id="tuning-fields" /><div className="bt"><button id="tuning-reset" className="s">Reset defaults</button><button id="tuning-export">Copy JSON</button><button id="tuning-save" className="s">Save JSON</button></div><p id="tuning-export-status" className="fine" role="status" aria-live="polite">Copy settings or save them as a JSON file.</p><textarea id="tuning-json" readOnly aria-label="Settings JSON" placeholder="Export settings to copy them here" /></div></div>
     <div id="toast"></div>
     <div id="banner"></div>
     <div id="preloader" className="loading-screen" role="status" aria-live="polite">
