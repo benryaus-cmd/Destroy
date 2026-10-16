@@ -11,7 +11,7 @@ export function updateCarriedActor(g){
  if(!human){actor.m.position.set(mon.position.x+Math.sin(mon.rotation.y)*2*g.sz,3.5*g.sz+mon.position.y,mon.position.z+Math.cos(mon.rotation.y)*2*g.sz);actor.m.rotation.set(.15,mon.rotation.y+.6,0);}
  else{
   mon.updateWorldMatrix(true,true);
-  const hands=(mon.userData.arms||[]).slice(0,2).map(a=>{
+  const hands=mon.userData.trialAnchors?.hands?.length?mon.userData.trialAnchors.hands.map(hand=>hand.getWorldPosition(new Vector3())):(mon.userData.arms||[]).slice(0,2).map(a=>{
    // Hand group is the elbow's immediate group child at the forearm tip.
    const hand=a.el.children.find(c=>c.isGroup&&c.position.y<0);
    return (hand||a.el).getWorldPosition(new Vector3());

@@ -1,0 +1,68 @@
+{
+  "sourceRepository": "https://github.com/benryaus-cmd/3d-Maker",
+  "sourceCommit": "116266fd5dd32c866ad56d5f949431469929bbd5",
+  "artist": "Kenney",
+  "license": "CC0-1.0",
+  "assets": [
+    {
+      "id": "dumpster",
+      "bytes": 35840,
+      "gitBlob": "4346d91ead95d98d6ca3fbee9f4d37f4d841fb4f",
+      "sourcePath": "public/assets/crime/streets/dumpster.glb"
+    },
+    {
+      "id": "light-curved",
+      "bytes": 20940,
+      "gitBlob": "fbe00e66616a20b0edc3b8b36039bec1dbc5953a",
+      "sourcePath": "public/assets/crime/streets/light-curved.glb"
+    },
+    {
+      "id": "police",
+      "bytes": 207584,
+      "gitBlob": "30ac9f6fdaace3c432782ef68c18f2da9b29b071",
+      "sourcePath": "public/assets/crime/vehicles/police.glb"
+    },
+    {
+      "id": "race",
+      "bytes": 179560,
+      "gitBlob": "46f48acee35b0192a7be6a6be9d1ff6e1d9e11de",
+      "sourcePath": "public/assets/crime/vehicles/race.glb"
+    },
+    {
+      "id": "road-sign-stop",
+      "bytes": 22172,
+      "gitBlob": "c6457263d88da000e7bbdc6abae10a90c27d7b97",
+      "sourcePath": "public/assets/crime/streets/road-sign-stop.glb"
+    },
+    {
+      "id": "sedan-sports",
+      "bytes": 189920,
+      "gitBlob": "8561324019d09daf824577187b8bfdb72c6e78f5",
+      "sourcePath": "public/assets/crime/vehicles/sedan-sports.glb"
+    },
+    {
+      "id": "sedan",
+      "bytes": 184504,
+      "gitBlob": "bcae84827ec41907f7f8ac8a314fa670cd372da1",
+      "sourcePath": "public/assets/crime/vehicles/sedan.glb"
+    },
+    {
+      "id": "suv",
+      "bytes": 219840,
+      "gitBlob": "24610bb1088be7ee01f69125a9c7bc6216157239",
+      "sourcePath": "public/assets/crime/vehicles/suv.glb"
+    },
+    {
+      "id": "taxi",
+      "bytes": 187896,
+      "gitBlob": "86c40f0a72018bbf4d66f108928fb9a6a7093e0d",
+      "sourcePath": "public/assets/crime/vehicles/taxi.glb"
+    },
+    {
+      "id": "traffic-light",
+      "bytes": 31796,
+      "gitBlob": "39d39733a048bf5c83b9dda85203c926ae5bc258",
+      "sourcePath": "public/assets/crime/streets/traffic-light.glb"
+    }
+  ]
+}

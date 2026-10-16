@@ -76,3 +76,15 @@ The starting monster is 50% larger: 0.975 instead of 0.65, with the same fresh-r
 The camera keeps its orbit height inside a building. That containing building is cut away for the render, allowing a view out, and returns when the camera exits. Collision/destruction data are unchanged. Walking and charging sweep against surviving wall/post sections; airborne bodies also collide with walls, while smashed holes and travel above roofs remain usable. Explicit climbing still works at every size.
 
 Held people rest across actual hand anchors rather than floating above the monster. CHOMP eats a carried person directly, pulling them into the raised mouth, including while elevated. Vehicles retain their overhead hold and facing-directed throws. Jumping/climbing cancels an active charge; charge, power and slam preserve people already held or being eaten.
+
+### v0.5.0 city and creature trials
+
+Choose **Your monster**, **Godzilla** or **Kong** before starting. All begin at the same run scale and keep the same upgrades. Godzilla has +25% health/smash, +20% power and 10% slower movement. Kong has +35% throw damage, +40% climbing, +15% speed and 10% less health. The model is loaded only for the selected trial. Kong uses authored clips for grab/eat/throw/climb/attacks; Godzilla combines an authored roar with bone-driven action poses. The creator remains available and is the fallback when an asset cannot load.
+
+Six real car models and four street models are reused from 3D Maker: sedan, SUV, taxi, police, race, sports sedan, curved lamps, traffic lights, stop signs and dumpsters. Streamed chunks include garden strips, benches, planters and shrubs; nearby props topple when hit. Warehouses with roller shutters/skylights and apartments with balconies are entirely sectioned and destructible.
+
+Wall hits accumulate cracks before breaking. Losing corner or side support drops upper walls, floor quadrants and roof portions, with falling slab debris biased toward the damaged side. This is a bounded structural approximation with pooled debris, not a general rigid-body building simulation. Cracks and missing sections survive nearby chunk unloading.
+
+Roof jumps land on surviving roof tiles or exposed floors. Slams descend from the current height, belly-flop and stand over 0.8 seconds. Rooftop impacts avoid street-level victims beyond the blast distance. Thrown people flail their procedural joints or authored skeleton bones; cars preserve angular momentum, ricochet, bounce and settle. Burnt cars stay burnt if models load late.
+
+Routine notifications and kill messages now use a small lower-left feed instead of appearing over impact targets. See [city asset sources](docs/city-assets.md) and [character trial sources](docs/monster-assets.md) for provenance and character animation limitations.

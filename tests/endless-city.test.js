@@ -73,3 +73,10 @@ test('long destructive travel bounds saved history and eventually regenerates ol
  }
  city.update(0,0);const restored=city.buildings.find(b=>b.id===id);assert.equal(restored.hp,restored.max);city.dispose();
 });
+
+test('partial cracking survives chunk retirement without silently healing',()=>{
+ const city=make(47);city.update(0,0);const b=city.buildings[0],id=b.id;
+ const result=damageBuilding(b.m,{x:0,y:2,z:b.d/2,radius:1,damage:5});assert.ok(result.damaged.length);assert.equal(result.removed.length,0);
+ const state=serializeBuilding(b.m);city.update(900,900);city.update(0,0);
+ assert.deepEqual(serializeBuilding(city.buildings.find(v=>v.id===id).m),state);city.dispose();
+});

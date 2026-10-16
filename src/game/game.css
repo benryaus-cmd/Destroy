@@ -3,3 +3,11 @@
 @media(max-height:650px){#campaign-summary{bottom:210px;padding:10px}#campaign-summary h2{font-size:24px}#campaign-info{margin:4px 0 8px}#logo h1{font-size:48px}.card img{height:30px;width:30px}.gore-controls{margin-top:4px}#conquest-hud{top:93px}}
 
 #tuning-json{user-select:text;-webkit-user-select:text;-webkit-touch-callout:default;touch-action:auto;font-size:14px}#tuning-export-status{min-height:1.4em}
+
+/* Keep impact sightlines clear: feedback lives at the lower-left edge. */
+#toast{top:auto;bottom:max(12px,env(safe-area-inset-bottom));left:12px;max-width:42vw;padding:7px 9px;border-radius:8px;font-size:10px;text-align:left;transform:translateY(8px)}#toast.on{transform:translateY(0)}
+#banner{top:auto;bottom:205px;left:12px;max-width:40vw;font-size:22px;text-align:left;transform:none;text-shadow:0 2px 4px #000}#banner.on{animation:edge-banner 2.1s both}
+#event-feed{position:fixed;left:12px;bottom:57px;width:39vw;max-width:230px;z-index:6;pointer-events:none;display:flex;flex-direction:column;gap:4px}.pop{position:static;font:700 12px 'DM Sans',sans-serif;text-shadow:0 1px 3px #000;animation:edge-note 1.1s both}
+@keyframes edge-note{0%{opacity:0;transform:translateX(-6px)}15%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-3px)}}@keyframes edge-banner{0%,100%{opacity:0}12%,75%{opacity:1}}
+
+#character-trials{display:flex;gap:5px;margin:9px 0 5px}#character-trials button{padding:7px 9px;font-size:10px;flex:1}#character-trials button.selected{border-color:var(--lime);color:var(--lime);background:#d7ff5118}#trial-perk{display:block;font-size:9px;color:var(--muted);line-height:1.35}#campaign-summary{top:24%}@media(max-width:600px){#campaign-summary{top:auto;bottom:235px;padding:11px}#campaign-summary h2{font-size:24px}#character-trials{margin-top:6px}#character-trials button{font-size:9px;padding:6px}#trial-perk{font-size:8px}}

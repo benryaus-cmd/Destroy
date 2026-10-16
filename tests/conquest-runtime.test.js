@@ -282,7 +282,7 @@ test('jump while climbing launches immediately and walking off a roof returns to
   updateSystems(rooftop, 1.1, 1.1, {});
   assert.equal(rooftop.climbing, null);
   assert.equal(rooftop.roofBuilding, roof);
-  assert.equal(rooftop.mon.position.y, 4.3);
+  assert.ok(Math.abs(rooftop.mon.position.y-4.24)<.001);
   rooftop.mon.position.x = 25;
   updateSystems(rooftop, .1, 1.2, {});
   assert.equal(rooftop.roofY, 0);
@@ -348,4 +348,29 @@ test('charge, power and body slam do not steal held people or an active chomp vi
  action(g,'charge');updateSystems(g,.01,.01,{});action(g,'power');
  g.jump={t:tuning.jumpDuration,startY:0,slam:true};g.charge=0;updateSystems(g,.01,.02,{});
  assert.equal(h.calls.kills.length,0);
+});
+
+test('jumping on an intact roof returns to that roof instead of passing into its interior',()=>{
+ const h=harness(),b=building(0,0,8),g=h.use(game({buildings:[b]}));
+ g.mon.position.set(1,8.24,1);g.roofY=8.24;g.roofBuilding=b;action(g,'jump');
+ let lifted=false;for(let i=0;i<80&&g.jump;i++){updateSystems(g,.025,i*.025,{});lifted ||=g.mon.position.y>8.5;assert.ok(g.mon.position.y>=8.24-.001);}
+ assert.ok(lifted);assert.equal(g.jump,null);assert.equal(g.roofBuilding,b);assert.ok(Math.abs(g.roofY-8.24)<.001);
+});
+
+test('rooftop belly slam lands once, starts recovery and avoids street-level victims below it',()=>{
+ const h=harness(),b=building(0,0,15),g=h.use(game({buildings:[b]})),person={m:new THREE.Group()};g.hum=[person];
+ g.mon.position.set(0,18,0);g.jump={t:0,startY:18,slam:true};
+ for(let i=0;i<80&&g.jump;i++)updateSystems(g,.025,i*.025,{});
+ assert.equal(g.jump,null);assert.equal(g.slamRecovery,0);assert.ok(g.mon.position.y>14);assert.equal(h.calls.kills.length,0);
+ const hits=h.calls.damage.length;updateSystems(g,.025,3,{});assert.equal(h.calls.damage.length,hits);
+});
+
+test('a thrown car hitting a surviving facade ricochets back toward the street',()=>{
+ const h=harness(),b=building(),g=h.use(game({buildings:[b]})),car=g.cars[0];car.m.position.set(0,2.5,-15);
+ car.projectile={v:new THREE.Vector3(0,0,150),age:0,hit:new Set()};g.projectiles.push(car);
+ updateSystems(g,.2,.2,{});assert.ok(car.fly);assert.ok(car.fly.v.z<0,'wreck must reflect away from the wall');
+});
+
+test('trial character perks affect the actual run stats while creator remains balanced',()=>{
+ const h=harness(),g=game();g.c.archetype='kong';h.use(g);assert.equal(g.modifiers.throw,1.35);assert.equal(g.modifiers.climb,1.4);assert.equal(g.st.sp,1.15);assert.equal(g.max,90);
 });

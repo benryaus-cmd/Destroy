@@ -34,10 +34,10 @@ const App = () => {
     void import('@/game/monsterGame.js');
   }, []);
   return <>
-      <canvas id="c" />
+      <canvas id="c" /><div id="event-feed" aria-hidden="true" />
       <div id="menu" className="ov on">
-        <div id="logo"><small>MONSTER MAKER · TEST BUILD v0.4.3</small><h1>RAMPAGE</h1><div className="drip"></div></div>
-        <div id="campaign-summary" className="glass"><span className="eyebrow">YOUR CITY. YOUR CREATURE.</span><h2>Start small. Wreck everything.</h2><p id="campaign-info">Grow through an endless city. Survive. Earn upgrades.</p><div className="campaign-actions"><button id="quick-start">START RAMPAGE</button><button className="s" id="continue-run">NEW CITY</button><button className="s" id="open-mutations">UPGRADES</button></div><small id="campaign-status">Progress saves on this device.</small></div><div id="mbot">
+        <div id="logo"><small>MONSTER MAKER · TEST BUILD v0.5.0</small><h1>RAMPAGE</h1><div className="drip"></div></div>
+        <div id="campaign-summary" className="glass"><span className="eyebrow">YOUR CITY. YOUR CREATURE.</span><h2>Start small. Wreck everything.</h2><div id="character-trials" aria-label="Playtest character"><button id="trial-creator" className="s" aria-pressed="true">Your monster</button><button id="trial-godzilla" className="s" aria-pressed="false">Godzilla</button><button id="trial-kong" className="s" aria-pressed="false">Kong</button></div><small id="trial-perk">Your custom creature and balanced stats</small><p id="campaign-info">Grow through an endless city. Survive. Earn upgrades.</p><div className="campaign-actions"><button id="quick-start">START RAMPAGE</button><button className="s" id="continue-run">NEW CITY</button><button className="s" id="open-mutations">UPGRADES</button></div><small id="campaign-status">Progress saves on this device.</small></div><div id="mbot">
           <div id="slots"></div>
           <div id="mbar">
             <button className="s" id="mq">Graphics: High</button>

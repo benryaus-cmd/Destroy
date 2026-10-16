@@ -38,7 +38,7 @@ test('seeded section buildings stay within mesh budget and have no solid central
     const sections = fn('getBuildingSections')(b);
     assert.ok(b.children[0].material.color);
     assert.ok(b.children.length<=7,`${type} exceeded drawcall budget`);
-    assert.ok(sections.length<=72 && sections.length>=20);
+    assert.ok(sections.length<=84 && sections.length>=20);
     assert.ok(!sections.some(s=>s.size.x>8 && s.size.z>6 && s.size.y>2),'solid central volume blocks holes');
     assert.equal(new Set(sections.map(s=>s.id)).size,sections.length);
     assert.deepEqual(sections.map(s=>s.id),fn('getBuildingSections')(fn('createDestructibleBuilding')({w:10,d:8,h:24,type,seed:42})).map(s=>s.id));
@@ -117,4 +117,77 @@ test('malformed restoration is ignored and collapsed restoration hides all secti
   assert.equal(fn('getBuildingIntegrity')(b),0);
   assert.ok(fn('getBuildingSections')(b).every(s=>s.removed));
   assert.equal(fn('damageBuilding')(b,{x:0,y:2,z:4,radius:3,damage:99}).removed.length,0);
+});
+
+test('weak hits leave visible per-instance cracks and saved section damage before breaking', () => {
+  const create=()=>fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  const b=create(), impact={x:0,y:2.25,z:5,radius:.2,damage:8};
+  assert.equal(fn('damageBuilding')(b,impact).removed.length,0);
+  const panel=fn('getBuildingSections')(b).find(s=>s.id==='wall:0:1:1');
+  assert.ok(panel.damage>0 && !panel.removed);
+  for(const instance of panel.instances) assert.ok(instance.mesh.geometry.getAttribute('sectionDamage').getX(instance.index)>0);
+  const shader={vertexShader:'#include <common>\n#include <begin_vertex>',fragmentShader:'#include <common>\n#include <color_fragment>'};
+  panel.instances[0].mesh.material.onBeforeCompile(shader);
+  assert.ok(shader.fragmentShader.includes('vSectionDamage'));
+  const save=fn('serializeBuilding')(b), copy=create();
+  fn('restoreBuilding')(copy,save);
+  assert.deepEqual(fn('serializeBuilding')(copy),save);
+  fn('damageBuilding')(copy,impact);
+  assert.ok(!fn('getBuildingSections')(copy).find(s=>s.id===panel.id).removed);
+  assert.ok(fn('damageBuilding')(copy,impact).removed.some(s=>s.id===panel.id));
+});
+
+test('lost corner loads collapse only their upper post, slabs and roof quadrant', () => {
+  const b=fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  fn('restoreBuilding')(b,{v:1,removed:['post:0:0','wall:0:1:0'],collapsed:false});
+  const sections=fn('getBuildingSections')(b);
+  assert.ok(sections.find(s=>s.id==='roof:0').removed);
+  assert.ok(sections.find(s=>s.id==='floor:1:0').removed);
+  assert.ok(sections.find(s=>s.id==='post:3:0').removed);
+  assert.ok(!sections.find(s=>s.id==='roof:3').removed);
+  assert.ok(!sections.find(s=>s.id==='floor:1:3').removed);
+  assert.ok(!b.userData.destruction.collapsed);
+});
+
+test('collapse direction points toward the side losing its load and roof hits stay local', () => {
+  const b=fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  const result=fn('damageBuilding')(b,{x:-3,y:18.12,z:2.5,radius:.1,damage:40});
+  assert.deepEqual(result.removed.map(s=>s.id),['roof:0']);
+  assert.ok(result.collapseDirection.x<0 && result.collapseDirection.z>0);
+});
+
+
+test('destroying an entire lower side drops its roof edge and floor halves, preserving the opposite side', () => {
+  const b=fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  fn('restoreBuilding')(b,{v:1,removed:['wall:0:1:0','wall:0:1:1','wall:0:1:2'],collapsed:false});
+  const sections=fn('getBuildingSections')(b);
+  for(const tile of [0,1]) {
+    assert.ok(sections.find(s=>s.id===`roof:${tile}`).removed);
+    assert.ok(sections.find(s=>s.id===`floor:1:${tile}`).removed);
+  }
+  for(const tile of [2,3]) assert.ok(!sections.find(s=>s.id===`roof:${tile}`).removed);
+  assert.ok(!sections.find(s=>s.id==='floor:0').removed);
+  assert.ok(!b.userData.destruction.collapsed);
+});
+
+test('malformed section damage is bounded and legacy slab saves expand correctly', () => {
+  const b=fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  fn('restoreBuilding')(b,{v:1,removed:['floor:1'],damage:{'wall:0:1:1':-3,'wall:0:2:1':'90','wall:0:3:1':NaN}});
+  assert.ok(fn('getBuildingSections')(b).filter(s=>s.id.startsWith('floor:1:')).every(s=>s.removed));
+  assert.deepEqual(fn('serializeBuilding')(b).damage,{});
+});
+
+test('warehouse roller doors and apartment balconies belong to their destructible wall sections', () => {
+  const create=type=>fn('createDestructibleBuilding')({w:12,d:10,h:18,type,seed:123});
+  const base=create('tower'), warehouse=create('warehouse'), apartment=create('apartment');
+  const panel=b=>fn('getBuildingSections')(b).find(s=>s.id==='wall:1:1:1');
+  assert.ok(panel(warehouse).instances.length>panel(base).instances.length,'roller door grooves are section-owned geometry');
+  assert.ok(panel(apartment).instances.length>panel(base).instances.length,'balcony geometry belongs to wall bay');
+  for(const b of [warehouse,apartment]) {
+    assert.ok(b.children.length<=7);
+    const p=panel(b);
+    const result=fn('damageBuilding')(b,{...p.position,radius:.1,damage:30});
+    assert.ok(result.removed.some(s=>s.id===p.id));
+    for(const instance of p.instances) assert.equal(instance.mesh.instanceMatrix.array[instance.index*16],0);
+  }
 });
