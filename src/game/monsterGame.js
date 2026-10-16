@@ -3,6 +3,8 @@ import { reportScore } from '@aippy/runtime/leaderboard';
 import {createDestructibleBuilding,damageBuilding,serializeBuilding,getBuildingIntegrity,getBuildingSections} from './destruction.js';
 import {applyScreenSteering} from './steering.js';
 import {createOcclusionOutlines} from './occlusionOutlines.js';
+import {moveWithBuildingCollision,resolveBuildingOverlap} from './buildingCollision.js';
+import {withCameraInteriorCutaways} from './cameraInterior.js';
 import {cameraStep} from './cameraRig.js';
 import {cleanupDistant,releaseHumanInteraction} from './cleanup.js';
 import {beginFeeding,advanceFeeding,chompPose} from './feeding.js';
@@ -829,10 +831,11 @@ function buildMonster(c) {
             })
         }
     u.radius = Math.max(bw, bd) + .15;
+    u.collisionHeight = Math.max(2.5,u.hy+.65);
     return SH(g)
 }
 const ease = x => x * x * (3 - 2 * x);
-function anim(m, t, sp, ch, sm, dt, hit, dd) {
+function anim(m, t, sp, ch, sm, dt, hit, dd, feedingHeld=false) {
     dt = dt || 0;
     hit = hit || 0;
     dd = dd || 0;
@@ -842,7 +845,7 @@ function anim(m, t, sp, ch, sm, dt, hit, dd) {
     u.ph = (u.ph || 0) + dt * sp * (9 + sp * 2);
     const ph = u.ph,
         p = 1 - ch,
-        csn = ch > 0 ? Math.sin(p * PI) : 0,
+        csn = ch > 0 ? Math.sin(p * PI)*(feedingHeld?.12:1) : 0,
         sp2 = 1 - sm;
     let arm = 0,
         crouch = 0;
@@ -885,7 +888,7 @@ function anim(m, t, sp, ch, sm, dt, hit, dd) {
     u.tor.position.set(pb.x, u.by + pb.y + bob - csn*.55, pb.z);
     u.tor.scale.set(pb.s, pb.s * (1 + Math.sin(t * 2.2) * .025 - (sm > 0 ? crouch * .2 : 0)), pb.s);
     u.tor.rotation.set(lean, twist, roll);
-    const hh = u.hy - u.by, feeding=chompPose(ch,u.hy);
+    const hh = u.hy - u.by, feeding=chompPose(ch,u.hy,feedingHeld);
     u.head.position.set(ph0.x, feeding.headY + ph0.y + bob, u.hz + ph0.z + feeding.forward);
     u.head.rotation.set(csn * .8 - .04 * sp - hit * .3, -twist * .6 + Math.sin(t * .6) * .3 * (1 - sp) * (1 - csn), -roll * .8);
     u.jaw.rotation.x = .12 + Math.sin(t * 2.2) * .03 + csn * 1.35 + hit * .35 + dd * .6;
@@ -1947,7 +1950,7 @@ function nearbyTrees(g, x, z) {
     return g.treeCells ? g.treeCells.get(cellKey(x, z)) || emptyBuildings : g.trees
 }
 function inB(x,z,p){for(const b of nearbyBuildings(G,x,z))if(!b.dead&&Math.abs(x-b.x)<b.w/2+p&&Math.abs(z-b.z)<b.d/2+p)return 1}
-function resolve(o,rad){let hit=null;for(const b of nearbyBuildings(G,o.x,o.z)){if(b.dead||!collisionSection(b,o.x,Math.max(1,o.y||0),o.z,rad))continue;const hx=b.w/2,hz=b.d/2,ex=o.x-b.x,ez=o.z-b.z;const px=hx+rad-Math.abs(ex),pz=hz+rad-Math.abs(ez);if(px<=0||pz<=0)continue;if(px<pz)o.x=b.x+(ex<0?-1:1)*(hx+rad);else o.z=b.z+(ez<0?-1:1)*(hz+rad);hit=b;}return hit;}
+function resolve(o,rad){return resolveBuildingOverlap(o,rad,nearbyBuildings(G,o.x,o.z));}
 function mkHouse(w,d,h){return createDestructibleBuilding({w,d,h,type:h>9?'tower':'house',seed:Math.round(w*1000+d*100+h*10)});}
 function mkShop(w,d,h){return createDestructibleBuilding({w,d,h,type:'shop',seed:Math.round(h*1000)});}
 function mkChurch(){return createDestructibleBuilding({w:7,d:11,h:12,type:'tower',seed:7278412});}
@@ -2254,7 +2257,7 @@ for(const h of g.hum.slice())if(H(h.m.position.x-p.x,h.m.position.z-p.z)<8)kill(
 for(const b of g.bl)if(!b.dead&&H(b.x-p.x,b.z-p.z)-Math.max(b.w,b.d)/2<8)dmgB(b,35,p);
 for(const o of g.cars)if(!o.d&&H(o.x-p.x,o.z-p.z)<8&&!(o.t>0))o.t=R(.2,.5);
 if(H(p.x-g.mon.position.x,p.z-g.mon.position.z)<7)hurt(5)}
-function chomp(){const g=G;if(g.mon.position.y>g.sz||g.biteAttack)return;g.cc=.72;g.ch=1;g.biteAttack=beginFeeding(g.mon,g.hum,g.sz,g.st.bite);}
+function chomp(){const g=G,heldHuman=g.held&&g.hum.includes(g.held)?g.held:null;if((g.mon.position.y>g.sz&&!heldHuman)||g.biteAttack)return;g.cc=.72;g.ch=1;g.biteAttack=beginFeeding(g.mon,g.hum,g.sz,g.st.bite,heldHuman);if(heldHuman&&g.biteAttack.victims.some(v=>v.h===heldHuman))g.held=null;}
 function updateFeeding(g,dt){if(advanceFeeding(g.biteAttack,g.mon,g.hum,dt,g.over,h=>kill(h,h.sol?150:50,'CHOMP!','eat')))g.biteAttack=null;}
 function smash(){const g=G;if(g.mon.position.y>1){action(g,'jump');return;}g.sc=1.1;g.sm=1;g.sl=.2}
 function smashHit(){const g=G;if(!canGroundAttack(g.mon,g.jump,g.climbing)){if(g.jump)g.jump.slam=true;return;}const m=g.mon,rad=7*g.sz*(.75+.25*g.st.smash),fx=Math.sin(m.rotation.y),fz=Math.cos(m.rotation.y),x=m.position.x+fx*2.2*g.sz,z=m.position.z+fz*2.2*g.sz;g.shake=Math.max(g.shake,.8);ring(x,z,rad);
@@ -2486,8 +2489,9 @@ function mmBase(){}
 function mmap(){const c=$('mm').getContext('2d'),g=G,span=100,scale=208/span,m=g.mon.position,px=x=>104+(x-m.x)*scale,pz=z=>104+(z-m.z)*scale;c.fillStyle='#293731';c.fillRect(0,0,208,208);c.fillStyle='#494e53';for(let i=Math.floor((m.x-50)/60);i<=(m.x+50)/60;i++)c.fillRect(px(i*60)-8,0,16,208);for(let i=Math.floor((m.z-50)/60);i<=(m.z+50)/60;i++)c.fillRect(0,pz(i*60)-8,208,16);for(const b of g.bl){c.fillStyle=b.dead?'#573832':'#b9b5aa';c.fillRect(px(b.x-b.w/2),pz(b.z-b.d/2),b.w*scale,b.d*scale);}for(const e of g.enemies){c.fillStyle='#ff6648';c.fillRect(px(e.m.position.x)-3,pz(e.m.position.z)-3,6,6);}c.save();c.translate(104,104);c.rotate(-g.mon.rotation.y);c.fillStyle='#d7ff51';c.beginPath();c.moveTo(0,7);c.lineTo(-5,-4);c.lineTo(5,-4);c.closePath();c.fill();c.restore();}
 function upd(dt,t){const g=G;if(g.paused)return;const m=g.mon,sz=g.sz,rad=m.userData.radius*sz;
 const pad=readPad(),ix=(pad?pad.x:0)+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+jv[0],iy=(pad?-pad.y:0)+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-jv[1],sp=(8+3*Math.sqrt(sz))*g.st.sp*tuning.moveSpeed,lim=g.T/2+14;
+const previousPosition=m.position.clone();
 const l=applyScreenSteering(m,ix,iy,dt,{cameraYaw:g.cameraRig?.yaw??g.yaw,moveSpeed:sp,turnSpeed:tuning.turnSpeed,blocked:g.over||!!g.climbing});
-const hb=(g.jump||g.climbing||g.roofY)?null:resolve(m.position,rad);if(hb&&l>.1&&!g.climbing){dmgB(hb,dt*40*sz);if(Math.random()<.2)P(hb.x,2,hb.z,'#bbbbbb',2,3)}
+const movement=m.position.clone().sub(previousPosition);m.position.copy(previousPosition);const hb=g.climbing?null:moveWithBuildingCollision(m.position,movement,rad,g.bl,{bodyHeight:m.userData.collisionHeight*sz});if(hb&&l>.1&&!g.climbing){dmgB(hb,dt*40*sz);if(Math.random()<.2)P(hb.x,2,hb.z,'#bbbbbb',2,3)}
 if(pad){if(pad.a)g.wc=1;if(pad.b)g.ws=1}
 g.cc-=dt;
 g.sc-=dt;
@@ -2495,7 +2499,7 @@ g.ch=Math.max(0,g.ch-dt*1.7);
 g.sm=Math.max(0,g.sm-dt*1.7);
 g.fl=Math.max(0,(g.fl||0)-dt*4);
 if(g.sl>0){g.sl-=dt;if(g.sl<=0)smashHit()}
-if(g.over)g.dd=Math.min(1,(g.dd||0)+dt*.8);anim(m,t,l,g.ch,g.sm,dt,g.fl,g.dd||0);if(g.held)m.userData.arms.forEach(a=>{a.p.rotation.x=-1.35;a.el.rotation.x=-.55;});if(g.climbing){const phase=(g.climbing.elapsed||0)*7;m.rotation.y=Math.atan2(g.climbing.building.x-m.position.x,g.climbing.building.z-m.position.z);m.userData.arms.forEach((a,i)=>{a.p.rotation.x=-2.2+Math.sin(phase+i*Math.PI)*.45;a.el.rotation.x=-.7-Math.sin(phase+i*Math.PI)*.25;});m.userData.legs.forEach((leg,i)=>{leg.p.rotation.x=-.35+Math.sin(phase+i*Math.PI)*.55;leg.k.rotation.x=.8+Math.cos(phase+i*Math.PI)*.3;});}m.rotation.z=(g.dd||0)*1.45;
+if(g.over)g.dd=Math.min(1,(g.dd||0)+dt*.8);anim(m,t,l,g.ch,g.sm,dt,g.fl,g.dd||0,!!g.biteAttack?.held);if(g.climbing){const phase=(g.climbing.elapsed||0)*7;m.rotation.y=Math.atan2(g.climbing.building.x-m.position.x,g.climbing.building.z-m.position.z);m.userData.arms.forEach((a,i)=>{a.p.rotation.x=-2.2+Math.sin(phase+i*Math.PI)*.45;a.el.rotation.x=-.7-Math.sin(phase+i*Math.PI)*.25;});m.userData.legs.forEach((leg,i)=>{leg.p.rotation.x=-.35+Math.sin(phase+i*Math.PI)*.55;leg.k.rotation.x=.8+Math.cos(phase+i*Math.PI)*.3;});}m.rotation.z=(g.dd||0)*1.45;
 {const stp=Math.floor((m.userData.ph||0)/PI);if(stp!==g.stp){g.stp=stp;if(l>.35&&!g.over){P(m.position.x-Math.sin(m.rotation.y)*.6*sz,.2,m.position.z-Math.cos(m.rotation.y)*.6*sz,'#b9b2a0',4,2.5,{s:1.2*sz,l:.6,g:3});g.shake=Math.max(g.shake,.05*sz)}}}
 if(!g.over){
     if((keys.Space||g.wc)&&g.cc<=0)chomp();
@@ -2545,14 +2549,14 @@ if(cache.ps!==ps){cache.ps=ps;$('bs').lastChild.style.background='conic-gradient
 g.mt=(g.mt||0)-dt;if(g.mt<=0){g.mt=.066;mmap()}
 g.shake=Math.max(0,g.shake-dt*1.5);updateCamera(g,dt);
 g.dl.position.set(m.position.x+45,80,m.position.z+25);g.dl.target.position.set(m.position.x,0,m.position.z)}
-function updateCamera(g,dt){const m=g.mon;g.cameraRig=cameraStep(g.cameraRig,{x:m.position.x,y:m.position.y,z:m.position.z,facing:m.rotation.y,size:g.sz}, {...tuning,cameraZoom:g.zd},dt);g.yaw=g.cameraRig.yaw;const p=g.cameraRig.position;cam.position.set(p.x,p.y,p.z);for(const b of nearbyBuildings(g,p.x,p.z))if(!b.dead&&Math.abs(p.x-b.x)<b.w/2+1.5&&Math.abs(p.z-b.z)<b.d/2+1.5&&p.y<b.h+2)cam.position.y=b.h+2;cam.position.x+=R(-1,1)*g.shake*tuning.shake;cam.position.y+=R(-1,1)*g.shake*tuning.shake;cam.fov=g.cameraRig.fov;cam.updateProjectionMatrix();const look=g.cameraRig.lookAt;cam.lookAt(look.x,look.y,look.z);}
+function updateCamera(g,dt){const m=g.mon;g.cameraRig=cameraStep(g.cameraRig,{x:m.position.x,y:m.position.y,z:m.position.z,facing:m.rotation.y,size:g.sz}, {...tuning,cameraZoom:g.zd},dt);g.yaw=g.cameraRig.yaw;const p=g.cameraRig.position;cam.position.set(p.x,p.y,p.z);cam.position.x+=R(-1,1)*g.shake*tuning.shake;cam.position.y+=R(-1,1)*g.shake*tuning.shake;cam.fov=g.cameraRig.fov;cam.updateProjectionMatrix();const look=g.cameraRig.lookAt;cam.lookAt(look.x,look.y,look.z);}
 function renderOcclusion(g){if(!tuning.occlusionOutlines)return;g.occlusionFX??=createOcclusionOutlines(rd);const actors=[{object:g.mon,color:0xd7ff51},...g.hum.map(h=>({object:h.m,color:h.sol?0xff8360:0x75e7ff})),...g.cars.map(c=>({object:c.m,color:0xffd57b})),...g.enemies.map(e=>({object:e.m,color:e.rival?0xff77ab:0xff8360})),...g.trees.filter(t=>!t.f).map(t=>({object:t.m,color:0x9adf93}))];g.occlusionFX.render(g.S,cam,{actors,buildings:g.bl});}
 const clock=new T3.Clock();
 let lastTs=0;
 function loop(ts){requestAnimationFrame(loop);const gap=mode=='game'?(G&&G.paused?32:10):mode=='edit'?14:32;if(ts&&ts-lastTs<gap)return;lastTs=ts||0;
 const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
 rd.toneMappingExposure=tuning.exposure;if(G?.ambient)G.ambient.intensity=tuning.ambientLight;if(G?.dl){G.dl.intensity=tuning.sunLight;G.dl.shadow.intensity=tuning.shadowDarkness;}
-if(mode=='game'&&G){padPause();upd(dt,t);if(G.paused)updateCamera(G,dt);perfAdapt(dt);rd.render(G.S,cam);renderOcclusion(G)}
+if(mode=='game'&&G){padPause();upd(dt,t);if(G.paused)updateCamera(G,dt);perfAdapt(dt);withCameraInteriorCutaways(G.bl,cam.position,()=>{rd.render(G.S,cam);renderOcclusion(G)})}
 else if(pm){editorFrame(dt,t)}
 if(perf.dbg)dbgTick(dt)}
 initializeSystems({game:()=>G,getSlot:()=>idx,toast,banner,pause:pauseT,particles:P,ring,kill,splat:wallSplat,damage:dmgB,carBoom,hurt,resolve,start:()=>{let slot=foc;if(!slots[slot]){slots[slot]={...DEF};persist();}void play(slot);}});

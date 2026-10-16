@@ -43,3 +43,16 @@ Added a building-depth/actor-silhouette outline pass for hidden actors. Uses ori
 Copy uses clipboard API then native selection/copy fallback, with honest success feedback. Context menus are permitted for text fields. Save JSON supplies an alternative download. Tests cover secure clipboard success, HTTP API absence, rejected/denied copy and exact JSON settings.
 
 79 Node tests and production build passed. Browser rendering verification was attempted at the local test URL, but the browser blocked it with ERR_BLOCKED_BY_CLIENT. Physical-phone steering feel, outline appearance and frame rate remain for the next playtest.
+
+
+# Movement, camera and carrying v0.4.3
+
+Starting size increased exactly 50%, 0.65 to 0.975. Fast exponential facing response replaces a slow fixed angular rate; saved turnSpeed still controls response while camera smoothing remains independent. A full-reversal test verifies facing catches up within 0.15 seconds and translation stays straight.
+
+Removed camera roof-height ejection. Containing buildings are hidden only during main and outline rendering and restored in finally, leaving collision and destruction active. Tests cover inside/outside/above/transformed buildings, unchanged camera coordinates and failure-path visibility restoration.
+
+Swept movement tests use actual destructible section records (.m) and cover fast wall crossing, sliding, broken bays, airborne body overlap, roof clearance, transformed buildings, overlap correction and crossing a broken entry before stopping at an intact rear wall. Integrated collision into ordinary movement, charge and post-jump overlap correction. Explicit climbing bypasses only attached horizontal collision. Runtime tests cover charge against a surviving facade, jump-height overlaps and charge/climb interaction.
+
+Carrying follows the authored arm/hand hierarchy and world transforms. Tests verify carried torso location under rotation/scale, vehicle behavior, and feeding ownership. Held bites prioritize the captured person, clear carried ownership, pull to the actual mouth, keep the head raised and release upright on death cancellation. Charge/power/slam skip held and feeding people. Independent review identified these action conflicts; regression tests failed before fixes and now pass.
+
+102 Node tests, production Vite build and git diff --check passed. No successful browser renderer playthrough or physical Android measurement is claimed; prior local-page browser access was blocked. Camera cutaway appearance, arm pose and turn feel remain for the phone playtest.

@@ -67,3 +67,12 @@ Screen-relative movement uses the camera’s current yaw every frame. There is n
 Hidden monster, people, vehicles and threats receive a silhouette outline through buildings: lime for the player, cyan for civilians, gold for vehicles and warm colors for threats. Original animated meshes and building sections drive the effect, so smashed holes remain visible. TUNE has an Occlusion Outlines toggle. Two half-resolution masks and their resources are released on ending/replacing the game scene.
 
 Copy JSON supports both the clipboard API and a native copy fallback for HTTP Wi-Fi play. Long-press selection is enabled in the text field; Save JSON also downloads the settings as a file.
+
+
+### v0.4.3 movement, camera and carrying
+
+The starting monster is 50% larger: 0.975 instead of 0.65, with the same fresh-run progression. Facing pivots quickly toward stick travel, including full reversals, while camera turn smoothing remains independent and keeps your saved values.
+
+The camera keeps its orbit height inside a building. That containing building is cut away for the render, allowing a view out, and returns when the camera exits. Collision/destruction data are unchanged. Walking and charging sweep against surviving wall/post sections; airborne bodies also collide with walls, while smashed holes and travel above roofs remain usable. Explicit climbing still works at every size.
+
+Held people rest across actual hand anchors rather than floating above the monster. CHOMP eats a carried person directly, pulling them into the raised mouth, including while elevated. Vehicles retain their overhead hold and facing-directed throws. Jumping/climbing cancels an active charge; charge, power and slam preserve people already held or being eaten.

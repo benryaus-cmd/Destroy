@@ -20,12 +20,19 @@ test('easing left toward up as the camera swings preserves a fixed world travel 
  }
  near(m.position.x,0);near(m.position.z,6.1);
 });
-test('turning follows the shortest arc at the configured rate without changing movement intent',()=>{
+test('turning responds along the shortest arc without changing movement intent',()=>{
  const m=actor(Math.PI-.1);applyScreenSteering(m,-.1,1,.05,{cameraYaw:0,moveSpeed:4,turnSpeed:2});
- near(m.rotation.y,Math.PI);assert.ok(m.position.z<0);
+ assert.ok(m.rotation.y>Math.PI-.02);assert.ok(m.rotation.y<Math.PI+.1);assert.ok(m.position.z<0);
 });
 test('release, deadzone and blocked controls do not move or rotate the character',()=>{
  for(const [x,y,blocked] of [[0,0,false],[.01,.01,false],[1,1,true]]){
   const m=actor(.4);assert.equal(applyScreenSteering(m,x,y,.2,{blocked}),0);near(m.rotation.y,.4);near(m.position.length(),0);
  }
+});
+
+
+test('a full reversal faces the new direction promptly while travelling in a straight line',()=>{
+ const m=actor(0);
+ for(let i=0;i<9;i++)applyScreenSteering(m,0,1,1/60,{cameraYaw:0,moveSpeed:10,turnSpeed:2.4});
+ assert.ok(Math.abs(Math.PI-Math.abs(m.rotation.y))<.1);near(m.position.x,0);near(m.position.z,-1.5);
 });

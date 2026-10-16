@@ -8,7 +8,8 @@ export function applyScreenSteering(mon,horizontal,forward,dt,{cameraYaw=0,moveS
  const seconds=Math.max(0,dt),sin=Math.sin(cameraYaw),cos=Math.cos(cameraYaw);
  const dx=cos*x-sin*y,dz=-sin*x-cos*y;
  mon.position.x+=dx*moveSpeed*seconds;mon.position.z+=dz*moveSpeed*seconds;
- const desired=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(desired-mon.rotation.y),Math.cos(desired-mon.rotation.y)),maxTurn=turnSpeed*seconds;
- mon.rotation.y+=Math.max(-maxTurn,Math.min(maxTurn,difference));
+ const desired=Math.atan2(dx,dz),difference=Math.atan2(Math.sin(desired-mon.rotation.y),Math.cos(desired-mon.rotation.y));
+ // Fast pivot response keeps reversals crisp while the camera remains independently damped.
+ mon.rotation.y+=difference*(-Math.expm1(-Math.max(0,turnSpeed)*10*seconds));
  return Math.min(1,magnitude);
 }

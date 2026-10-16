@@ -9,3 +9,21 @@ test('chomp cannot capture a held or airborne person',()=>{
  const {mon,front,rear,list}=fixture();front.held=true;rear.m.position.z=1;rear.projectile={};
  assert.equal(beginFeeding(mon,list,1).victims.length,0);
 });
+
+test('explicit held victim is prioritized above ground range and released into mouth animation',()=>{
+ const {mon,front,rear,list}=fixture();front.held=true;front.sol=true;front.m.position.set(0,8,0);const attack=beginFeeding(mon,list,1,1,front);assert.equal(attack.victims[0].h,front);assert.equal(front.held,false);assert.equal(front.beingEaten,true);const consumed=[];assert.equal(advanceFeeding(attack,mon,list,.18,false,h=>consumed.push(h)),false);assert.equal(consumed.length,0);assert.ok(front.m.position.y<8);advanceFeeding(attack,mon,list,.18,false,h=>consumed.push(h));assert.deepEqual(consumed,[front]);
+});
+
+test('cancelled held feeding restores original carried transform and scale without consuming',()=>{
+ const {mon,front,list}=fixture();front.held=true;front.m.position.set(2,5,3);front.m.scale.set(.8,1.1,.9);const attack=beginFeeding(mon,list,1,1,front),consumed=[];advanceFeeding(attack,mon,list,.2,false,h=>consumed.push(h));advanceFeeding(attack,mon,list,.1,true,h=>consumed.push(h));assert.deepEqual(front.m.position.toArray(),[2,5,3]);assert.deepEqual(front.m.scale.toArray(),[.8,1.1,.9]);assert.equal(front.held,false);assert.equal(front.beingEaten,false);assert.equal(consumed.length,0);
+});
+
+test('held-person bite opens its jaw without bending the head down to street level',()=>{
+ const held=chompPose(.5,3,true);assert.equal(held.headY,3);assert.ok(held.jawOpen>1);assert.ok(held.forward<.4);
+});
+
+test('canceling a held bite releases the sideways victim upright',()=>{
+ const {mon,front,list}=fixture();front.held=true;front.m.rotation.z=Math.PI/2;
+ const attack=beginFeeding(mon,list,1,1,front);advanceFeeding(attack,mon,list,.1,false,()=>{});
+ advanceFeeding(attack,mon,list,.1,true,()=>{});assert.equal(front.m.rotation.z,0);assert.equal(front.held,false);assert.equal(front.beingEaten,false);
+});
