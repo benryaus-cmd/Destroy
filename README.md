@@ -53,7 +53,7 @@ Browser/Android visual playtesting is required before treating this as a polishe
 
 ### v0.4 playtest polish
 
-Open TUNE during play or pause. The overhead camera now follows the monster’s heading smoothly by default, with 70° pitch and 65° FOV. Switch Follow to Fixed to compare; adjust position/turn smoothing, yaw offset, distance, pitch and FOV live. Movement direction is held steady until you release the stick/keys, so camera rotation does not steer the monster in circles. Ambient light, sunlight and exposure are also adjustable and saved locally.
+Open TUNE during play or pause. The overhead camera now follows the monster’s heading smoothly by default, with 70° pitch and 65° FOV. Switch Follow to Fixed to compare; adjust position/turn smoothing, yaw offset, distance, pitch and FOV live. Steering uses tank controls: up/W moves in the monster’s facing direction, down/S reverses, and left/right or A/D turn in place or while moving. Camera follow is independent of steering. TUNE includes turn speed and shadow darkness (0=no cast shadows, 1=full). Ambient light, sunlight and exposure are also adjustable and saved locally.
 
 GRAB picks up nearby people as well as vehicles. Face a wall and THROW to leave a blood splat (when gore is enabled). Hatchlings can climb immediately, with alternating climbing limbs. Removing a lower wall bay brings down its upper wall bays; a small capped cube burst accompanies the section debris.
 

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { reportScore } from '@aippy/runtime/leaderboard';
 import {createDestructibleBuilding,damageBuilding,serializeBuilding,getBuildingIntegrity,getBuildingSections} from './destruction.js';
+import {applyTankSteering} from './steering.js';
 import {cameraStep} from './cameraRig.js';
 import {cleanupDistant,releaseHumanInteraction} from './cleanup.js';
 import {beginFeeding,advanceFeeding,chompPose} from './feeding.js';
@@ -1158,7 +1159,7 @@ function show(id) {
     ['menu', 'edit', 'hud'].forEach(k => $(k).classList.toggle('on', k == id));
     $('btns').style.display = id == 'hud' ? 'flex' : 'none';
     ['over', 'pause', 'help'].forEach(k => $(k).classList.remove('on'));
-    $('hint').textContent = id == 'hud' ? 'WASD / stick: move · Space: chomp · E: smash · overhead camera · wheel or ＋/－: zoom · Esc: pause' : ''
+    $('hint').textContent = id == 'hud' ? 'W/S / stick up/down: forward/reverse · A/D / stick left/right: turn · Space: chomp · E: smash · overhead camera · wheel or ＋/－: zoom · Esc: pause' : ''
 }
 function focusPrev() {
     cfg = Object.assign({}, DEF, slots[foc] || {});
@@ -2485,12 +2486,10 @@ function updateThreat(level) {
 function mmBase(){}
 function mmap(){const c=$('mm').getContext('2d'),g=G,span=100,scale=208/span,m=g.mon.position,px=x=>104+(x-m.x)*scale,pz=z=>104+(z-m.z)*scale;c.fillStyle='#293731';c.fillRect(0,0,208,208);c.fillStyle='#494e53';for(let i=Math.floor((m.x-50)/60);i<=(m.x+50)/60;i++)c.fillRect(px(i*60)-8,0,16,208);for(let i=Math.floor((m.z-50)/60);i<=(m.z+50)/60;i++)c.fillRect(0,pz(i*60)-8,208,16);for(const b of g.bl){c.fillStyle=b.dead?'#573832':'#b9b5aa';c.fillRect(px(b.x-b.w/2),pz(b.z-b.d/2),b.w*scale,b.d*scale);}for(const e of g.enemies){c.fillStyle='#ff6648';c.fillRect(px(e.m.position.x)-3,pz(e.m.position.z)-3,6,6);}c.save();c.translate(104,104);c.rotate(-g.mon.rotation.y);c.fillStyle='#d7ff51';c.beginPath();c.moveTo(0,7);c.lineTo(-5,-4);c.lineTo(5,-4);c.closePath();c.fill();c.restore();}
 function upd(dt,t){const g=G;if(g.paused)return;const m=g.mon,sz=g.sz,rad=m.userData.radius*sz;
-const pad=readPad();let ix=(pad?pad.x:0)+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+jv[0],iy=(pad?-pad.y:0)+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-jv[1],l=H(ix,iy);if(l>1){ix/=l;iy/=l;l=1}if(g.over||g.climbing){ix=iy=l=0}
-if(l>.05&&!g.wasMoving)g.moveYaw=g.cameraRig?.yaw||0;if(l<=.05)g.moveYaw=null;g.wasMoving=l>.05;const inputYaw=g.moveYaw||0,sy=Math.sin(inputYaw),cy=Math.cos(inputYaw),mx=cy*ix-sy*iy,mz=-sy*ix-cy*iy,sp=(8+3*Math.sqrt(sz))*g.st.sp*tuning.moveSpeed,lim=g.T/2+14;
-m.position.x+=mx*sp*dt;m.position.z+=mz*sp*dt;
+const pad=readPad(),ix=(pad?pad.x:0)+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+jv[0],iy=(pad?-pad.y:0)+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-jv[1],sp=(8+3*Math.sqrt(sz))*g.st.sp*tuning.moveSpeed,lim=g.T/2+14;
+const l=applyTankSteering(m,ix,iy,dt,{moveSpeed:sp,turnSpeed:tuning.turnSpeed,blocked:g.over||!!g.climbing});
 const hb=(g.jump||g.climbing||g.roofY)?null:resolve(m.position,rad);if(hb&&l>.1&&!g.climbing){dmgB(hb,dt*40*sz);if(Math.random()<.2)P(hb.x,2,hb.z,'#bbbbbb',2,3)}
-if(l>.1){let d=Math.atan2(mx,mz)-m.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));m.rotation.y+=d*Math.min(1,dt*10)}
-if(pad){g.yaw-=pad.cx*dt*2.4;if(pad.a)g.wc=1;if(pad.b)g.ws=1}
+if(pad){if(pad.a)g.wc=1;if(pad.b)g.ws=1}
 g.cc-=dt;
 g.sc-=dt;
 g.ch=Math.max(0,g.ch-dt*1.7);
@@ -2552,7 +2551,7 @@ const clock=new T3.Clock();
 let lastTs=0;
 function loop(ts){requestAnimationFrame(loop);const gap=mode=='game'?(G&&G.paused?32:10):mode=='edit'?14:32;if(ts&&ts-lastTs<gap)return;lastTs=ts||0;
 const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
-rd.toneMappingExposure=tuning.exposure;if(G?.ambient)G.ambient.intensity=tuning.ambientLight;if(G?.dl)G.dl.intensity=tuning.sunLight;
+rd.toneMappingExposure=tuning.exposure;if(G?.ambient)G.ambient.intensity=tuning.ambientLight;if(G?.dl){G.dl.intensity=tuning.sunLight;G.dl.shadow.intensity=tuning.shadowDarkness;}
 if(mode=='game'&&G){padPause();upd(dt,t);if(G.paused)updateCamera(G,dt);perfAdapt(dt);rd.render(G.S,cam)}
 else if(pm){editorFrame(dt,t)}
 if(perf.dbg)dbgTick(dt)}
