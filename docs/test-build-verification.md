@@ -13,3 +13,14 @@ Every Play/Continue path now resets the city and starts at size0.65. Permanent p
 Production Vite build passed. git diff --check passed. Independent review found pending bites finishing after death; that path was extracted into a tested feeding module and fixed. Population remains bounded when buildings release survivors. Stale orbit help text was corrected.
 
 No successful renderer-based playthrough of v0.3, physical Android performance measurement or listening test is claimed. This environment's browser could not create WebGL on the original preview. The next useful check is the updated local build on the user's phone.
+
+
+# Playtest polish v0.4 verification
+
+16 October 2026. Added a pure heading-follow camera rig with exponential smoothing, shortest-angle turning, live fixed/follow comparison, default 70° pitch and 65° FOV. Camera and light changes update while paused. Position and turn response, yaw offset, pitch, distance, FOV, hemisphere ambient, sunlight, exposure and cleanup distance are adjustable in TUNE and persist locally. Input uses camera-relative direction latched until release to prevent camera/movement feedback spirals; this feel needs phone playtesting.
+
+People can be grabbed and thrown in the monster's facing direction. Swept section collision produces a capped pool of wall splats, tied to the impacted structure and cleared when gore is disabled or the structure leaves. Kill paths clear carried/projectile ownership; chomp cannot compete for those actors. Reach filtering allows a reachable car to be grabbed even if a closer person is outside their shorter reach.
+
+Missing lower wall bays propagate upward through the same column, including restoration from old damage; adjacent structure remains. Existing pooled debris now adds up to five small cubes per impact. Hatchlings climb immediately with an alternating limb pose. Distant pooled debris, limbs, decals, wall splats, fires, rings and enemies are retired. Active city geometry stays at nine chunks; damage history is capped at 64 chunks and old blocks can regenerate. Resource ownership and protected carried/climbed objects remain intact.
+
+66 Node tests pass, including actual Three scene simulation of person pickup/throw/wall contact, hatchling climbing, support propagation beyond the visible-debris cap, long destructive travel, resource cleanup, camera smoothing across frame rates and held actor death ownership. Production Vite build and git diff --check pass. Independent review found and verified fixes for carried-person death and pickup reach selection. No renderer-based playthrough or physical-phone frame-rate measurement is claimed for this revision; WebGL creation was unavailable in the provided browser environment.

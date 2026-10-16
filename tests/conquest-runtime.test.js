@@ -72,11 +72,12 @@ function harness() {
   Object.assign(campaign, createConquest(12345));
   Object.assign(tuning, DEFAULT_TUNING, { soundVolume: 0 });
   let current;
-  const calls = { damage: [], carBoom: [], rings: [], toasts: [], banners: [], kills: [] };
+  const calls = { damage: [], carBoom: [], rings: [], toasts: [], banners: [], kills: [], splats: [] };
   initializeSystems({
     game: () => current, getSlot: () => 2, start() {}, pause() {},
     toast: message => calls.toasts.push(message), banner: message => calls.banners.push(message),
     particles() {}, ring: (...args) => calls.rings.push(args),
+    splat: (...args) => calls.splats.push(args),
     kill: (...args) => calls.kills.push(args), hurt() {}, resolve() {},
     damage(b, amount, position) {
       calls.damage.push({ b, amount, position: position.clone() });
@@ -296,3 +297,26 @@ test('a removed rooftop tile stops supporting the monster while adjacent roof re
 
 test('each endless run starts small regardless of previous XP and resets city damage without losing banked upgrades',()=>{const h=harness();campaign.xp=99999;campaign.buildings={old:{collapsed:true}};campaign.activeRun={id:'old',health:90,config:{size:4}};resetRunCity();assert.deepEqual(campaign.buildings,{});assert.equal(campaign.activeRun,null);const config=mutationConfig({size:2.2,parts:{}});assert.equal(config.size,.65);const g=game();g.endless=true;g.c=config;g.base=config.size;h.use(g);assert.equal(g.sz,.65);assert.equal(g.growth.stage,0);assert.deepEqual(g.equipped,[]);Object.assign(g,{score:1950,eaten:12,destroyed:4});finishRun(g);assert.equal(runProgress.points,19);finishRun(g);assert.equal(runProgress.points,19);resetRunCity();assert.equal(runProgress.points,19);assert.equal(runProgress.bests.score,1950);});
 test('an armed tank can be lifted and thrown without firing or hitting itself',()=>{const h=harness(),g=h.use(game());g.cars=[];const tank={id:'tank-1',rival:false,hp:200,m:new THREE.Group(),cd:0};g.S.add(tank.m);tank.m.position.set(1,0,0);g.enemies.push(tank);action(g,'grab');assert.equal(g.held,tank);assert.equal(tank.held,true);g.mon.rotation.y=Math.PI/2;updateSystems(g,.31,.31,{});assert.equal(tank.hp,200);action(g,'grab');assert.equal(g.held,null);assert.ok(tank.projectile.v.x>0);assert.ok(Math.abs(tank.projectile.v.z)<1e-8);updateSystems(g,.1,.41,{});assert.equal(tank.hp,200);assert.ok(tank.projectile);});
+
+
+test('a hatchling grabs a person, throws along facing and splats once on the entry wall',()=>{
+ const h=harness(),b=building(0,12,12),g=h.use(game({buildings:[b]}));g.cars=[];
+ const person={m:new THREE.Group(),x:0,z:1};person.m.position.set(0,0,1);g.S.add(person.m);g.hum.push(person);
+ action(g,'grab');assert.equal(g.held,person);assert.equal(person.held,true);
+ updateSystems(g,.31,.31,{});g.mon.rotation.y=0;action(g,'grab');assert.equal(g.held,null);assert.ok(person.projectile.v.z>0);
+ for(let i=0;i<20&&g.projectiles.length;i++)updateSystems(g,.05,.36+i*.05,{});
+ assert.equal(h.calls.splats.length,1);assert.equal(h.calls.splats[0][0],person);assert.equal(h.calls.splats[0][1],b);
+ assert.equal(g.projectiles.length,0);assert.equal(person.projectile,null);assert.equal(h.calls.carBoom.length,0);assert.equal(h.calls.kills.length,0);
+ updateSystems(g,.1,2,{});assert.equal(h.calls.splats.length,1);
+});
+
+test('hatchlings can climb immediately and advance an animation phase',()=>{
+ const h=harness(),b=building(0,5,10),g=h.use(game({buildings:[b]}));
+ assert.equal(g.growth.stage,0);action(g,'jump');assert.equal(g.climbing?.building,b);
+ updateSystems(g,.1,.1,{});assert.ok(g.mon.position.y>0);assert.ok(g.climbing.elapsed>0);
+});
+
+test('an unreachable person does not block grabbing a reachable vehicle',()=>{
+ const h=harness(),g=h.use(game());g.sz=.65;const person={m:new THREE.Group()};person.m.position.set(0,0,4);g.hum=[person];
+ g.cars[0].m.position.set(0,0,5);action(g,'grab');assert.equal(g.held,g.cars[0]);
+});

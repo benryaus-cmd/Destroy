@@ -37,12 +37,58 @@ test('seeded section buildings stay within mesh budget and have no solid central
     const b = fn('createDestructibleBuilding')({w:10,d:8,h:24,type,seed:42});
     const sections = fn('getBuildingSections')(b);
     assert.ok(b.children[0].material.color);
-    assert.ok(b.children.length<=8,`${type} exceeded drawcall budget`);
-    assert.ok(sections.length<=100 && sections.length>=20);
+    assert.ok(b.children.length<=7,`${type} exceeded drawcall budget`);
+    assert.ok(sections.length<=72 && sections.length>=20);
     assert.ok(!sections.some(s=>s.size.x>8 && s.size.z>6 && s.size.y>2),'solid central volume blocks holes');
     assert.equal(new Set(sections.map(s=>s.id)).size,sections.length);
     assert.deepEqual(sections.map(s=>s.id),fn('getBuildingSections')(fn('createDestructibleBuilding')({w:10,d:8,h:24,type,seed:42})).map(s=>s.id));
   }
+});
+
+test('a missing lower wall bay crumbles its upper bays without removing adjacent structure', () => {
+  const b=fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  const result=fn('damageBuilding')(b,{x:0,y:2.25,z:5,radius:.2,damage:25});
+  assert.equal(result.collapsed,false);
+  assert.deepEqual(result.removed.map(s=>s.id),['wall:0:1:1','wall:1:1:1','wall:2:1:1','wall:3:1:1']);
+  const sections=fn('getBuildingSections')(b);
+  assert.ok(sections.filter(s=>/^wall:\d:1:1$/.test(s.id)).every(s=>s.removed));
+  assert.ok(sections.filter(s=>s.kind==='wall' && !/:1:1$/.test(s.id)).every(s=>!s.removed));
+  assert.ok(sections.filter(s=>s.kind!=='wall').every(s=>!s.removed));
+  for(const s of sections) for(const instance of s.instances) {
+    const scale=instance.mesh.instanceMatrix.array[instance.index*16];
+    assert.equal(scale===0,s.removed,`${s.id} rendering must match its logical removal`);
+  }
+  assert.ok(result.removed.length<=24);
+  const save=fn('serializeBuilding')(b);
+  assert.deepEqual(save.removed,result.removed.map(s=>s.id).sort());
+  const copy=fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  fn('restoreBuilding')(copy,save);
+  assert.deepEqual(fn('serializeBuilding')(copy),save);
+  assert.equal(fn('getBuildingIntegrity')(copy),result.integrity);
+});
+
+test('legacy lower wall damage restores with deterministic upward support propagation', () => {
+  const create=()=>fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  const b=create();
+  fn('restoreBuilding')(b,{v:1,removed:['wall:1:2:0'],collapsed:false});
+  assert.deepEqual(fn('serializeBuilding')(b).removed,['wall:1:2:0','wall:2:2:0','wall:3:2:0']);
+  assert.ok(!fn('getBuildingSections')(b).find(s=>s.id==='wall:0:2:0').removed);
+  const copy=create();
+  fn('restoreBuilding')(copy,fn('serializeBuilding')(b));
+  assert.deepEqual(fn('serializeBuilding')(copy),fn('serializeBuilding')(b));
+});
+
+test('large support cascades persist every removed section beyond the debris cap', () => {
+  const create=()=>fn('createDestructibleBuilding')({w:12,d:10,h:18,type:'tower',seed:123});
+  const b=create();
+  const result=fn('damageBuilding')(b,{x:0,y:1,z:0,radius:20,damage:99});
+  const save=fn('serializeBuilding')(b);
+  assert.equal(result.removed.length,24);
+  assert.ok(save.removed.length>24);
+  assert.deepEqual(save.removed,fn('getBuildingSections')(b).filter(s=>s.removed).map(s=>s.id).sort());
+  const copy=create();
+  fn('restoreBuilding')(copy,save);
+  assert.deepEqual(fn('serializeBuilding')(copy),save);
 });
 
 test('a facade impact opens a local hole, retains interior floors, and restores exactly', () => {

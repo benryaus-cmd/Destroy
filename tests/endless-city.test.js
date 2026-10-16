@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createEndlessCity, CHUNK_SIZE } from '../src/game/endlessCity.js';
+import { createEndlessCity, CHUNK_SIZE, MAX_SAVED_CHUNKS } from '../src/game/endlessCity.js';
 import { damageBuilding, serializeBuilding } from '../src/game/destruction.js';
 const make = seed => createEndlessCity({seed,scene:new THREE.Scene(),makeCar:()=>new THREE.Group()});
 
@@ -60,4 +60,16 @@ test('factory cars release only owned paint while retaining shared geometry and 
  assert.ok(firstPaints.every(p=>p.disposals===1));assert.equal(sharedGeometryDisposals,0);assert.equal(sharedMaterialDisposals,0);
  city.dispose();assert.ok(paints.every(p=>p.disposals===1));assert.equal(sharedGeometryDisposals,0);assert.equal(sharedMaterialDisposals,0);
  geometry.dispose();shared.dispose();
+});
+
+
+test('long destructive travel bounds saved history and eventually regenerates old blocks',()=>{
+ const city=make(17);city.update(0,0);const first=city.buildings[0],id=first.id;first.hp=1;
+ for(let i=1;i<MAX_SAVED_CHUNKS+5;i++){
+  for(const b of city.buildings)b.hp=1;
+  city.update(i*180,0);
+  assert.ok(city.savedChunkCount<=MAX_SAVED_CHUNKS);
+  assert.equal(city.chunks.size,9);
+ }
+ city.update(0,0);const restored=city.buildings.find(b=>b.id===id);assert.equal(restored.hp,restored.max);city.dispose();
 });

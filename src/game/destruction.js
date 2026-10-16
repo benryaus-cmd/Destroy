@@ -121,6 +121,22 @@ export function getBuildingSections(group) {
 }
 
 const hiddenMatrix=new THREE.Matrix4().makeScale(0,0,0);
+function propagateUnsupportedWalls(state) {
+  // Each facade bay is a vertical stack. A missing bay cannot carry any bays
+  // above it; neighboring bays, interior posts, and slabs carry their own loads.
+  const lowestMissing=new Map();
+  for(const id of state.removed) {
+    const match=/^wall:(\d+):(\d+):(\d+)$/.exec(id);
+    if(!match) continue;
+    const floor=Number(match[1]), stack=`${match[2]}:${match[3]}`;
+    lowestMissing.set(stack,Math.min(lowestMissing.get(stack)??Infinity,floor));
+  }
+  for(const section of state.sections) {
+    const match=/^wall:(\d+):(\d+):(\d+)$/.exec(section.id);
+    if(match && Number(match[1])>lowestMissing.get(`${match[2]}:${match[3]}`)) state.removed.add(section.id);
+  }
+}
+
 function applyRemoval(state) {
   for(const section of state.sections) {
     section.removed=state.collapsed || state.removed.has(section.id);
@@ -137,9 +153,11 @@ export function damageBuilding(group,impact) {
   if(!state || state.collapsed) return {removed:[],collapsed:!!state?.collapsed,integrity:state?.integrity??1};
   const hit=selectImpactSections(state.sections,impact);
   for(const s of hit) state.removed.add(s.id);
+  propagateUnsupportedWalls(state);
   const result=structuralIntegrity(state.sections,state.removed);
   state.collapsed=result.collapsed;
-  const removed=state.collapsed ? [...hit,...state.sections.filter(s=>!s.removed && !state.removed.has(s.id))] : hit;
+  const hitIds=new Set(hit.map(s=>s.id));
+  const removed=[...hit,...state.sections.filter(s=>!s.removed && !hitIds.has(s.id) && (state.collapsed || state.removed.has(s.id)))];
   if(state.collapsed) for(const s of state.sections) state.removed.add(s.id);
   applyRemoval(state);
   return {removed:removed.slice(0,MAX_DEBRIS).map(s=>({id:s.id,position:{...s.position},size:{...s.size},color:s.color})),collapsed:state.collapsed,integrity:state.integrity};
@@ -155,6 +173,7 @@ export function restoreBuilding(group,data) {
   if(!state || !data || data.v!==1 || !Array.isArray(data.removed)) return;
   const ids=new Set(state.sections.map(s=>s.id));
   state.removed=new Set(data.removed.filter(id=>typeof id==='string' && ids.has(id)));
+  propagateUnsupportedWalls(state);
   state.collapsed=data.collapsed===true || structuralIntegrity(state.sections,state.removed).collapsed;
   if(state.collapsed) for(const s of state.sections) state.removed.add(s.id);
   applyRemoval(state);

@@ -3,6 +3,7 @@ import { createDestructibleBuilding, serializeBuilding, restoreBuilding } from '
 
 export const CHUNK_SIZE = 60;
 export const CHUNK_RADIUS = 1;
+export const MAX_SAVED_CHUNKS = 64;
 const hash = (seed,x,z) => {
  let n=(seed^Math.imul(x,374761393)^Math.imul(z,668265263))>>>0;
  n=Math.imul(n^(n>>>13),1274126177); return (n^(n>>>16))>>>0;
@@ -99,6 +100,8 @@ export function createEndlessCity({seed=1,scene,makeCar=()=>new THREE.Group()}={
    chunk.terrain.removeFromParent();const markings=chunk.terrain.children.find(v=>v.isInstancedMesh);markings?.dispose();chunks.delete(key);removedChunks.push(key);
   }
   for(const key of wanted)if(!chunks.has(key)){const [a,b]=key.split(',').map(Number);spawn(a,b);addedChunks.push(key);}
+  // Forget oldest distant damage after long journeys; active geometry stays bounded.
+  for(const key of saved.keys()){if(saved.size<=MAX_SAVED_CHUNKS)break;if(!wanted.has(key))saved.delete(key);}
   return {changed:changed||!!(addedChunks.length||removedChunks.length),addedChunks,removedChunks};
  }
  function dispose(){
@@ -107,5 +110,5 @@ export function createEndlessCity({seed=1,scene,makeCar=()=>new THREE.Group()}={
   for(const chunk of chunks.values()){chunk.terrain.removeFromParent();chunk.terrain.children.find(v=>v.isInstancedMesh)?.dispose();}
   box.dispose();for(const m of Object.values(materials))m.dispose();buildings.length=0;cars.length=0;chunks.clear();detached.clear();saved.clear();disposed=true;
  }
- return {buildings,cars,chunks,update,dispose};
+ return {buildings,cars,chunks,update,dispose,get savedChunkCount(){return saved.size;}};
 }

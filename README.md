@@ -27,7 +27,7 @@ Open http://127.0.0.1:8080. For an existing clone, stop Vite, run `git pull`, `n
 | Mutation shockwave | X | POWER |
 | Pause / save | Escape / P | Pause icon |
 
-Throw follows the camera direction. Feed first: buildings become breakable after the first growth stage. Jump next to an intact structure after growing to climb; press again to launch, then again to slam. Armoured forces arrive at threat 3; rival monsters join higher threats. Mutation parts unlock through XP and are bought with earned DNA in EVOLVE; changes apply to the next sortie.
+Throw follows the monster’s facing. Jump next to an intact structure at any size to climb; press again to launch, then again to slam. Armoured forces arrive at threat 3; rival monsters join higher threats. Mutation parts unlock through XP and are bought with earned DNA in EVOLVE; changes apply to the next sortie.
 
 ## Endless runs and upgrades
 
@@ -49,3 +49,12 @@ npm run build
 `dist/index.html` contains the compiled game. The packaged models remain in `dist/assets/characters/` and must accompany it. See `docs/asset-sources.md` for attribution. `final-goal.md` describes both this milestone and the larger target.
 
 Browser/Android visual playtesting is required before treating this as a polished release. The development browser returned a WebGL-context creation error on the original Aippy preview, so its rendering failure is not evidence of mobile performance or gameplay quality.
+
+
+### v0.4 playtest polish
+
+Open TUNE during play or pause. The overhead camera now follows the monster’s heading smoothly by default, with 70° pitch and 65° FOV. Switch Follow to Fixed to compare; adjust position/turn smoothing, yaw offset, distance, pitch and FOV live. Movement direction is held steady until you release the stick/keys, so camera rotation does not steer the monster in circles. Ambient light, sunlight and exposure are also adjustable and saved locally.
+
+GRAB picks up nearby people as well as vehicles. Face a wall and THROW to leave a blood splat (when gore is enabled). Hatchlings can climb immediately, with alternating climbing limbs. Removing a lower wall bay brings down its upper wall bays; a small capped cube burst accompanies the section debris.
+
+Debris, splats, fire and enemies are cleaned up far from the monster. Nine city chunks stay loaded; damage history is capped at 64 chunks, so very old distant blocks can regenerate on revisiting. Each new run still resets the city.
